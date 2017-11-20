@@ -1,0 +1,5 @@
+The camera parameters are those used in the lab sessions ... http://printart.isr.ist.utl.pt/piv/lab/pivlab1    file CalibrationData.mat or calib_asus.mat (same thing).
+
+The parameters are depth_cam.K   rgb_cam.K   and Rd_to_rgb and Td_to_rgb . See http://printart.isr.ist.utl.pt/piv/lab/labclasses17.docx how to use it...
+
+JP
