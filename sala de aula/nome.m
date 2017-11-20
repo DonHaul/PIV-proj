@@ -7,10 +7,10 @@ IMGSS = IMGS;
 for (i=1:length(d))
     IM = imread(d(i).name);
     IMGS(:,:,i) = double(rgb2gray(IM));
-    imagesc(IMGS(:,:,i));
+   % imagesc(IMGS(:,:,i));
     % aqui temos todas as imagens em gray (em itensidade)
-    colormap(gray);
-    pause()
+   % colormap(gray);
+  %  pause()
 end
 
 
@@ -21,10 +21,10 @@ IMG = zeros (480,640,length(d));% inicializa para não demorar muito tempo
 for (i=1:length(d))
     load (d(i).name);
     IMGS(:,:,i) = double(depth_array);
-    imagesc(IMGS(:,:,i));
+  %  imagesc(IMGS(:,:,i));
     % aqui temos todas as imagens em gray (em itensidade)
-    colormap(gray);
-    pause()
+  %  colormap(gray);
+   % pause()
 end
 
 
@@ -46,24 +46,24 @@ for i = 1: length(d)
     % IMG(:,:,i) = imbinarize(IMG(:,:,i));
     % this is spoopi
 %    IMG(:,:,i) = squeeze(IMG(:,:,i));
-   imagesc(IMG(:,:,i));
+  % imagesc(IMG(:,:,i));
    % imshow(label2rgb(IMG(:,:,i)));
     
    % colormap(gray);
-    pause()
+  %  pause()
     
     GMI = IMG(:,:,1);
     MGI(i,:) = GMI(:);
     [n,bin] = hist(MGI(i,:),unique(MGI(i,:)));
     [~,idx] = sort(-n);
-    n(idx)
-    bin(idx)
+    n(idx);
+    bin(idx);
     
 
 end
 
 % tirar o maximo e ver o segundo maximo
-hist(GMI(:), 0:255);
+%hist(GMI(:), 0:255);
 
 % %%
 % imgmed=zeros(480,640,38);
