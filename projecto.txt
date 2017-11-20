@@ -1,0 +1,170 @@
+
+
+background sub -> obj  interpolando , densificar plano juntar dois locais de profuncdidas diferentes não irá afetar pois pertence ao brackground, não é preciso detalhe pois não vai ocorrer recontrução.     interpol (1,2,3) MATLAB CRIAR IMAGEM DE BACKGROUND COMPLETA
+
+sift + procrustes + RANSAC  --->>>R,T
+fusão point cloud 3D association
+seguimento
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2 kinects
+
+campo de vião coincidente
+
+de cada onject um paralelepido que inscreve os pontos 
+
+braço junto com o livro
+
+
+returnar os 8 pointos ((retunaros maximos e minimos tipo SIBD))
+
+
+escolher o sistema de refencias num kinect so é preciso uma matriz de rotação translação
+
+
+
+camara matriz 3*4 r3 r2 em coordenadas homogenias   matriz P das aulas
+
+griddata para juntar os pontos que falham
+
+
+
+
+
+
+
+
+
+
+
+
+preprocessamento remover backgroung
+
+mediana: variável aleatória pixeis função de probabilidade  histograma
+
+
+
+
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+VLfeat
+
+vl_sift
+vl_ubcmatch
+
+
+
+
+1 função, 5 argumentos max com 3 primeiros img1 img2 camaras-> RANSAC
+
+vlfeat
+
+cell array
+
+key points padrão não alinhados do gradiente :::
+
+
+entre duas imagens pelo menos 4 pontos 
+
+
+
+
+seleccionar HARRIS	nas duas imagens
+
+
+representar! sift (128)  16 blocos histogramas do gradiente VLfeat
+
+
+emparelhamento entre imagens(escolher caractrística cor distribuição de cor de uma imager ser igual à do momento de custo) -- descritores de forma 3D // cor ignorer centroide e veridicar se a variancia é parecida   128 caracteristica de um ponto
+
+formar para associa objectos de imagens seguidas
+filtros morfológicos  2 pontos do foreground 
+momentos de incercia
+
+
+
+
+
+cor emparelhamento entre imagens seguidas     
+->descritor de COR tranformar um "obejcto" que permanece igual consoante as condições, não utilizar rgd pode não vai ser interinseco fazer o histograma da cor dos pixeis, mesmo object independente da orientação posição e iluminação.. rgd -> COR  comprimento de onda dirac a COR vai ser correnponde ao centro do distribuição e a largura da banda no eixo do labmda (cor de rosa menor largura em relação ao vermelho), invariante à iluminação   (HSV/HSV/HSV/HSV/HSV/HSV/HSV) -H,S,V  (V INTENSIDADE)  (H FREQUENCIA CENTRAL?? angulo indexada à frequencia) (S LARGURA??   saturação//associado à quantidade de branco))
+
+
+
+
+background sub -> obj 
+
+sift + procrustes + RANSAC  --->>>R,T
+fusão point cloud 3D association
+seguimento
+
+
+
+
+
+
+
+u = alfa/gamam = P1*(X~)/ P3*(X~) combinação linear    descobrir o P tipo de calibração X\Y minimos quadrados  decomposição 	QR 3*3 TRIANGUAL SUPERIOR * MATRIZ ROTAÇÃO    
+
+parte 1 é dado a matriz
+
+parte 2 so é dado as imagens
