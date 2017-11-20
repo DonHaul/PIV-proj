@@ -1,0 +1,32 @@
+im1 = imread('imagens/rgb_image_10.png');
+im2 = imread('imagens/rgb_image_14.png');
+
+load imagens/depth_10.mat;
+deptharray1 = depth_array;
+load imagens/depth_14.mat; 
+deptharray2 = depth_array;
+load imagens/CalibrationData.mat;
+
+
+
+imagesc(depth_array)
+
+%Compute XYZ from depth image (u,v) and depth z(u,v)- CHECK FILE
+xyz=get_xyzasus(depth_array(:),[480 640],1:640*480,Depth_cam.K,1,0);
+figure
+%Display point cloud
+p=pointCloud(xyz)
+showPointCloud(p)
+%Read RGB image
+im=imread('rgb_image_10.png');
+figure;
+imagesc(im);
+%Compute "virtual image" aligned with depth
+rgbd=get_rgbd(xyz,im,R_d_to_rgb,T_d_to_rgb,RGB_cam.K);
+figure
+imagesc([im; rgbd])
+cl=reshape(rgbd,480*640,3);
+p=pointCloud(xyz,'Color',cl);
+figure
+% Point cloud with colour per pixel
+showPointCloud(p)
