@@ -5,6 +5,8 @@ im2=imread('rgb_image2_3.png');
 load('depth1_3.mat')
 dep1=depth_array;
 load('depth2_3.mat')
+load calib_asus
+load CalibrationData
 dep2=depth_array;
 %dep2(find(dep2(:)>4000))=0;
 xyz1=get_xyzasus(dep1(:),[480 640],(1:640*480)', Depth_cam.K,1,0);
