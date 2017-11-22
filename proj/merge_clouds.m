@@ -55,7 +55,7 @@ for i=1:length(prof_a)
     imgmed(:,:,i) = double(depth_array)/1000;
 end
 
-backGround_1 = median(imgmed,3);% faz a mediana da imagem ao longo do tempo(3ª dimensão), logo irá detetar o back ground
+backGround_a = median(imgmed,3);% faz a mediana da imagem ao longo do tempo(3ª dimensão), logo irá detetar o back ground
 
 prof_b=dir('../imagens/data_rgb/depth2*.mat');
 for i=1:length(prof_b)
@@ -63,7 +63,7 @@ for i=1:length(prof_b)
     imgmed(:,:,i) = double(depth_array)/1000;
 end
 
-backGround_2 = median(imgmed,3);% faz a mediana da imagem ao longo do tempo(3ª dimensão), logo irá detetar o back ground
+backGround_b = median(imgmed,3);% faz a mediana da imagem ao longo do tempo(3ª dimensão), logo irá detetar o back ground
 
 
 
@@ -85,7 +85,31 @@ for i =1:length(prof_b)
     camera_a = imread([myDir '1_' int2str(i) ext_img]);
     camera_b = imread([myDir '2_' int2str(i) ext_img]);
     
-        %Compute XYZ from depth image (u,v) and depth z(u,v)- CHECK FILE
+    
+    Extremes_a = getextremes_depth(deptharray_a, backGround_a);
+%     Files_a = zeros(1,4);
+%     for quatro=1:4
+%         Files_a(quatro) = [(Extremes(quatro,1)) + (fix(Extremes(quatro,2)/480)*480) + rem(Extremes(quatro,2),480)] ;
+%     end
+    
+    Extremes_b = getextremes_depth(deptharray_b, backGround_b);
+%     Files_b = zeros(1,4);
+%     for quatro=1:4
+%         Files_b(quatro) = [(Extremes(quatro,1)) + (fix(Extremes(quatro,2)/480)*480) + rem(Extremes(quatro,2),480)] ;
+%     end
+%     
+%  
+Extremes = zeros(8,2);
+    for quatro=1:4
+    
+        Extremes(quatro,:) = get_xyz(deptharray_a,Extremes_a(quatro,:),Depth_cam.K);
+        Extremes(quatro+4,:) = (get_xyz(deptharray_a,Extremes_a(quatro,:),Depth_cam.K))*tr.T + ones(3,1)*tr.c(1,:);
+        
+    end
+    %%so ate aqui importa acho euc
+
+    %%
+    %Compute XYZ from depth image (u,v) and depth z(u,v)- CHECK FILE
     xyz_a=get_xyzasus(deptharray_a(:),[480 640],1:640*480,Depth_cam.K,1,0);
 
     %Compute "virtual image" aligned with depth
@@ -100,10 +124,12 @@ for i =1:length(prof_b)
     rgbd_b=get_rgbd(xyz_b,camera_b,R_d_to_rgb,T_d_to_rgb,RGB_cam.K);
 
 
-    pc1=pointCloud(xyz_a,'Color',reshape(rgbd_a,[480*640 3]));
-    pc2=pointCloud(xyz_b*tr.T+ones(length(xyz_b),1)*tr.c(1,:),'Color',reshape(rgbd_b,[480*640 3]));
-    figure 
-    hold off;
+     
+    
+  %  pc1=pointCloud(xyz_a,'Color',reshape(rgbd_a,[480*640 3]));
+   % pc2=pointCloud(xyz_b*tr.T+ones(length(xyz_b),1)*tr.c(1,:),'Color',reshape(rgbd_b,[480*640 3]));
+   % figure 
+    %hold off;
     %showPointCloud(pc1)
     % isto acho que já não é preciso pois não precisamos de mostar
     % serve so para ver que as matrizes estão bem

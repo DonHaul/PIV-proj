@@ -1,20 +1,22 @@
 function [ extremos] = getextremes_depth( imagem, backGround )
 %GETEXTREMES_DEPTH Summary of this function goes here
 %   Detailed explanation goes here
-    imagem = abs(imagem - backGround)>320;
+    imagesc(imagem);
+    pause();
+    imagem = abs(double(imagem) - backGround)>0.35;%erro de 35 cm da camera
     
-    
+      imagesc(imagem);
+    pause();
     imagem = bwlabel(imagem);
     TEMP = imagem;
     
     imagem = squeeze(imagem);
     imagesc(imagem);
-   
-    colormap(gray);
+    pause();
     
     
     GMI = imagem(:);
-    [n,bin] = hist(GMI(:),unique(GMI(:)));
+    [n,~] = hist(GMI(:),unique(GMI(:)));
     [~,idx] = sort(-n);
     % o maior é o brackbground
     j=2;
@@ -23,25 +25,30 @@ function [ extremos] = getextremes_depth( imagem, backGround )
     pos_m_Y = 0;
     pos_m_X = 0 ;
     pos_M_X = 0;
-    
+   
     while( n(idx(j)) > 10E3)
         [r, c] = find(TEMP==(idx(j)-1));
-        pos_M_Y = max(r)
-        pos_M_X = max(c)
-        pos_m_Y = min(r)
-        pos_m_X = min (c)
-        
+        [pos_M_Y,idx_M_Y] = max(r);
+        [pos_M_X,idx_M_X] = max(c);
+        [pos_m_Y,idx_m_Y] = min(r);
+        [pos_m_X,idx_m_X] = min(c);
         
         j=j+1;
     
     end
-        hold on
-        scatter(pos_m_X , pos_M_Y , 'X')
-        scatter(pos_m_X,pos_m_Y,'X')
-        scatter(pos_M_X,pos_M_Y,'X')
-        scatter(pos_M_X,pos_m_Y,'X')
+    
+    hold on
+    
+    scatter(pos_m_X,pos_M_Y,'X')
+    scatter(pos_m_X,pos_m_Y,'X')
+    scatter(pos_M_X,pos_M_Y,'X')
+    scatter(pos_M_X,pos_m_Y,'X')
+    
     pause(1)
- extremos = [ pos_m_X ; pos_M_X ; pos_m_Y ;pos_M_Y];
+    extremos = [ c(idx_M_X),r(idx_M_X) ;
+     c(idx_m_X),r(idx_m_X) ;
+     c(idx_M_Y),r(idx_M_Y) ;
+     c(idx_m_Y),r(idx_m_Y) ;];
 
 end
 
