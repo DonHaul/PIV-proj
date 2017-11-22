@@ -107,9 +107,12 @@ for i =1:length(prof_b)
     %showPointCloud(pc1)
     % isto acho que já não é preciso pois não precisamos de mostar
     % serve so para ver que as matrizes estão bem
-    pcshow(pcmerge(pc1,pc2,0.001));
+    %pcshow(pcmerge(pc1,pc2,0.001));
    %pause
-   drawnow;
+  % drawnow;
+  
+  
+  
     
 end
 % temos os nomes das imagens guardadas em camera_a/b e prof_a/b
