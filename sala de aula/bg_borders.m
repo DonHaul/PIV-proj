@@ -22,7 +22,7 @@ IMG = zeros (480,640,length(d));% inicializa para não demorar muito tempo
 for (i=1:length(d))
     load (d(i).name);
     IMGS(:,:,i) = double(depth_array);
-    IMGS(:,:,i) = scatteredInterpolant(IMGS(:,:,i),'linear','ExtrapolationMethod');
+    %IMGS(:,:,i) = scatteredInterpolant(IMGS(:,:,i),'linear','ExtrapolationMethod');
   %  imagesc(IMGS(:,:,i));
     % aqui temos todas as imagens em gray (em itensidade)
   %  colormap(gray);
