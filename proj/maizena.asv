@@ -36,7 +36,7 @@ ext_img = '.png.';
 
 %temos que alterar isto apra que as matrizes R e T corretas, podemos fazer
 %a função procrustes do professor de forma a termos/ ou feita com o VL feat
-% retornar em tr.T a matriz de rotação e tr.c a de translação
+% reto
 load ../imagens/matlab.mat;
 
 for i =1:length(prof_b)
