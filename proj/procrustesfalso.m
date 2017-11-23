@@ -1,11 +1,11 @@
 %%
 % READ IMAGES and GENERATE POINT CLOUDS
-im1=imread('../imagens/data_rgb/rgb_image1_3.png');
-im2=imread('../imagens/data_rgb/rgb_image2_3.png');
-load('../imagens/data_rgb/depth1_3.mat')
-dep1=depth_array;
-load('../imagens/data_rgb/depth2_3.mat')
 load ../imagens/matlab.mat;
+im1=imread('../maizena/rgb_image1_3.png');
+im2=imread('../maizena/rgb_image2_3.png');
+load('../maizena/depth1_3.mat')
+dep1=depth_array;
+load('../maizena/depth2_3.mat')
 dep2=depth_array;
 %dep2(find(dep2(:)>4000))=0;
 xyz1=get_xyzasus(dep1(:),[480 640],(1:640*480)', Depth_cam.K,1,0);

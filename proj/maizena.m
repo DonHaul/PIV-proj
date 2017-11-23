@@ -37,12 +37,13 @@ ext_img = '.png.';
 %temos que alterar isto apra que as matrizes R e T corretas, podemos fazer
 %a função procrustes do professor de forma a termos/ ou feita com o VL feat
 % retornar em tr.T a matriz de rotação e tr.c a de translação
-load ../imagens/matlab.mat;
+load ../maizena/maizena.mat;
+% introduzir aqui o codigo do procrustes -> ou refazer os alinhamento pela
+% função procrustesfalso.m
 
 for i =1:length(prof_b)
     
-    
-    load([myDir_prof 'depth1_' int2str(i) '.mat'])
+        load([myDir_prof 'depth1_' int2str(i) '.mat'])
     deptharray_a = double(depth_array)/1000;
     
     
@@ -88,8 +89,15 @@ for quatro=1:4
     end
 end
  
- Extremes
 
+ %verificar pq às vezes pode acontecer coisas estranhas(0, locais muito longe)
+ x_max = max(Extremes(:,1))
+ x_min = min(Extremes(:,1))
+ y_max = max(Extremes(:,2))
+ y_min = min(Extremes(:,2))
+ z_max = max(Extremes(:,3))
+ z_min = min(Extremes(:,3))
+ 
  
 %% analisar aqui os resultados para ver se ó objecto ou não
     %%so ate aqui importa acho eu
