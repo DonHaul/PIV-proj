@@ -76,15 +76,16 @@ for i =1:length(prof_b)
     
     
     load([myDir_prof prof_a(i).name])
-    deptharray_a = depth_array;
+    deptharray_a = double(depth_array)/1000;
     
     
     load([myDir_prof prof_b(i).name])
-    deptharray_b = depth_array;
+    deptharray_b = double(depth_array)/1000;
     
     camera_a = imread([myDir '1_' int2str(i) ext_img]);
     camera_b = imread([myDir '2_' int2str(i) ext_img]);
-    
+    imagesc(camera_a)
+    pause(1)
     
     Extremes_a = getextremes_depth(deptharray_a, backGround_a);
 %     Files_a = zeros(1,4);
@@ -99,29 +100,43 @@ for i =1:length(prof_b)
 %     end
 %     
 %  
-Extremes = zeros(8,2);
-    for quatro=1:4
+if isequal(Extremes_a,Extremes_b,zeros(4,2))
+    continue;
+end
     
-        Extremes(quatro,:) = get_xyz(deptharray_a,Extremes_a(quatro,:),Depth_cam.K);
-        Extremes(quatro+4,:) = (get_xyz(deptharray_a,Extremes_a(quatro,:),Depth_cam.K))*tr.T + ones(3,1)*tr.c(1,:);
-        
+Extremes = zeros(8,3);
+for quatro=1:4
+
+    if isequal(Extremes_a,zeros(4,2))
+            Extremes(quatro+4,:) = get_xyz(Extremes_b(quatro,:),deptharray_b(Extremes_b(quatro,2),Extremes_b(quatro,1)),Depth_cam.K)*tr.T + tr.c(1,:);
+    elseif isequal(Extremes_b,zeros(4,2))
+            Extremes(quatro,:) = get_xyz(Extremes_a(quatro,:),deptharray_a(Extremes_a(quatro,2),Extremes_a(quatro,1)),Depth_cam.K);
+    else
+    Extremes(quatro,:) = get_xyz(Extremes_a(quatro,:),deptharray_a(Extremes_a(quatro,2),Extremes_a(quatro,1)),Depth_cam.K);
+    Extremes(quatro+4,:) = get_xyz(Extremes_b(quatro,:),deptharray_b(Extremes_b(quatro,2),Extremes_b(quatro,1)),Depth_cam.K)*tr.T + tr.c(1,:);
     end
-    %%so ate aqui importa acho euc
+end
+ 
+ Extremes
+
+ 
+%% analisar aqui os resultados para ver se ó objecto ou não
+    %%so ate aqui importa acho eu
 
     %%
     %Compute XYZ from depth image (u,v) and depth z(u,v)- CHECK FILE
-    xyz_a=get_xyzasus(deptharray_a(:),[480 640],1:640*480,Depth_cam.K,1,0);
-
-    %Compute "virtual image" aligned with depth
-    rgbd_a=get_rgbd(xyz_a,camera_a,R_d_to_rgb,T_d_to_rgb,RGB_cam.K);
-
-    %imagem 2
-
-    %Compute XYZ from depth image (u,v) and depth z(u,v)- CHECK FILE
-    xyz_b=get_xyzasus(deptharray_b(:),[480 640],1:640*480,Depth_cam.K,1,0);
-
-    %Compute "virtual image" aligned with depth
-    rgbd_b=get_rgbd(xyz_b,camera_b,R_d_to_rgb,T_d_to_rgb,RGB_cam.K);
+%     xyz_a=get_xyzasus(deptharray_a(:),[480 640],1:640*480,Depth_cam.K,1,0);
+% 
+%     %Compute "virtual image" aligned with depth
+%     rgbd_a=get_rgbd(xyz_a,camera_a,R_d_to_rgb,T_d_to_rgb,RGB_cam.K);
+% 
+%     %imagem 2
+% 
+%     %Compute XYZ from depth image (u,v) and depth z(u,v)- CHECK FILE
+%     xyz_b=get_xyzasus(deptharray_b(:),[480 640],1:640*480,Depth_cam.K,1,0);
+% 
+%     %Compute "virtual image" aligned with depth
+%     rgbd_b=get_rgbd(xyz_b,camera_b,R_d_to_rgb,T_d_to_rgb,RGB_cam.K);
 
 
      
