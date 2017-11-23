@@ -3,7 +3,7 @@ function [ extremos] = getextremes_depth( imagem, backGround )
 %   Detailed explanation goes here
     flag = 0;
     extremos = zeros(4,2);
-    imagem = abs(double(imagem) - backGround)>0.20;%erro de 35 cm da camera
+    imagem = abs(double(imagem) - backGround)>0.1;%erro de 35 cm da camera
     imagem = bwlabel(imagem);
     TEMP = imagem;
     
@@ -22,7 +22,8 @@ function [ extremos] = getextremes_depth( imagem, backGround )
     pos_M_X = 0;
     
        
-    while( n(idx(j)) > 10E3)
+    while( n(idx(j)) > 1E3)
+        %de momento so suporta um objecto
         [r, c] = find(TEMP==(idx(j)-1));
         [pos_M_Y,idx_M_Y] = max(r);
         [pos_M_X,idx_M_X] = max(c);
