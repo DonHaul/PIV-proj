@@ -27,6 +27,7 @@ end
 
 backGround_b = median(imgmed,3);% faz a mediana da imagem ao longo do tempo(3ª dimensão), logo irá detetar o back ground
 
+load ../maizena/maizena.mat;
 
 for i =1:length(prof_b)
     

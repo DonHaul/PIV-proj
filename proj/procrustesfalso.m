@@ -55,6 +55,21 @@ pc2=pointCloud(xyz21,'Color',reshape(rgbd2,[480*640 3]));
 figure(1);clf; showPointCloud(pc1);
 figure(2);clf; showPointCloud(pc2);
 pause;
+
+
+
+%%
+xyz1=get_xyzasus(dep1(:),[480 640],(1:640*480)', Depth_cam.K,1,0);
+    xyz2=get_xyzasus(dep2(:),[480 640],(1:640*480)', Depth_cam.K,1,0);
+    rgbd1 = get_rgbd(xyz1, im1, R_d_to_rgb, T_d_to_rgb, RGB_cam.K);
+    rgbd2 = get_rgbd(xyz2, im2, R_d_to_rgb, T_d_to_rgb, RGB_cam.K);
+    pc1=pointCloud(xyz1,'Color',reshape(rgbd1,[480*640 3]));
+    pc2=pointCloud(xyz2*tr.T+ones(length(xyz2),1)*tr.c(1,:),'Color',reshape(rgbd2,[480*640 3]));
+    close all
+    %figure(1);hold off;
+    %showPointCloud(pc1)
+    pcshow(pcmerge(pc1,pc2,0.001));
+    drawnow;
 %% 
 %SHOW ALL CLOUDS FUSING
 d=dir('../imagens/data_rgb/rgb_image1_*');
