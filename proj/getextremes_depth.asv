@@ -1,8 +1,6 @@
-function [ r,c, flag] = getextremes_depth( imagem, backGround )
+function [ extremos] = getextremes_depth( imagem, backGround )
 %GETEXTREMES_DEPTH Summary of this function goes here
 %   Detailed explanation goes here
-    r=0;
-    c=0;
     flag = 0;
     extremos = zeros(4,2);
     depth = imagem;
@@ -26,7 +24,7 @@ function [ r,c, flag] = getextremes_depth( imagem, backGround )
     pos_M_X = 0;
     
        
-    while( n(idx(j)) > 3E3)
+    while( n(idx(j)) > 1E3)
         %de momento so suporta um objecto
         [r, c] = find(TEMP==(idx(j)-1));
         [pos_M_Y,idx_M_Y] = max(r);
@@ -34,10 +32,9 @@ function [ r,c, flag] = getextremes_depth( imagem, backGround )
         [pos_m_Y,idx_m_Y] = min(r);
         [pos_m_X,idx_m_X] = min(c);
         
-        
         j=j+1;
         
-       
+        for k=1:length(
         flag = 1;
     end
     

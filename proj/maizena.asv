@@ -55,14 +55,14 @@ for i =1:length(prof_b)
     imagesc(im2)
     pause(1)
     
-    [ra, ca, flag1] = getextremes_depth(deptharray1, backGround_a);
+    [ra, ca] = getextremes_depth(deptharray1, backGround_a);
 %     Files_a = zeros(1,4);
 %     for quatro=1:4
 %         Files_a(quatro) = [(Extremes(quatro,1)) + (fix(Extremes(quatro,2)/480)*480) + rem(Extremes(quatro,2),480)] ;
            
 %     end
     
-    [rb, cb, flag2] = getextremes_depth(deptharray2, backGround_b);
+    [rb, cb] = getextremes_depth(deptharray2, backGround_b);
 %     Files_b = zeros(1,4);
 %     for quatro=1:4
 %         Files_b(quatro) = [(Extremes(quatro,1)) + (fix(Extremes(quatro,2)/480)*480) + rem(Extremes(quatro,2),480)] ;
@@ -95,9 +95,8 @@ for i =1:length(prof_b)
 %  z_max = max(Extremes(:,3));
 %  z_min = min(Extremes(:,3));
 
-    if (flag1 == 0 || flag2 == 0)
+    if ca == 0 || ra == 0 || cb == 0 || rb == 0
         continue;
-        
     end
  %Compute XYZ from depth image (u,v) and depth z(u,v)- CHECK FILE
     xyz1=get_xyzasus(deptharray1(:),[480 640],1:640*480,Depth_cam.K,1,0);
