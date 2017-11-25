@@ -6,10 +6,19 @@
 % são introduzidas manualmente, sendo que neste caso se vai fazer apenas o
 % LOAD destas matrizes
 
+
+
+
+% eixo que é criado a partir da camera 1 o y aumenta para baixo, o x
+% aumenta para a direita e o z aumenta na profundidade.
+
 %%
 clear 
 close all
 
+%varivel que conta o numero total de objectos encontrados, conta em
+%repetido para diferenetes imagens(tempos_diferentes
+obj = 1;
 % Directório onde se encontram as imagens de profundidade e de rgb para
 % análise
 myDir_prof = '../maizena/';
@@ -78,9 +87,9 @@ for i =1:length(prof_b)
     figure (1)
     imagesc(im1)%imagem 1
     figure (2)
-    pause(1)
+    %pause(1)
     imagesc(im2)%imagem 2
-    pause(1)
+   % pause(1)
     
 
 
@@ -88,10 +97,10 @@ for i =1:length(prof_b)
     %ra: as linhas que pertencem ao objecto,
     %ca: as colunas que pertencem ao objecto
     %flag1 serve para verificar se foi encontrado algum objecto 
-    [ra, ca, flag1] = getextremes_depth(deptharray1, backGround_a);%esta função serve para encontrar os objectos pertecencentes ao background e trazer os locais(pixeis(linha e coluna)) onde estes se encontram
+    [ra, ca, flag_1,size_1] = getextremes_depth(deptharray1, backGround_a);%esta função serve para encontrar os objectos pertecencentes ao background e trazer os locais(pixeis(linha e coluna)) onde estes se encontram
 
     % analizar na outra imagem
-    [rb, cb, flag2] = getextremes_depth(deptharray2, backGround_b);
+    [rb, cb, flag_2,size_2] = getextremes_depth(deptharray2, backGround_b);
 
     
     
@@ -130,7 +139,7 @@ for i =1:length(prof_b)
 
     % se não foi encontrado nenhum objecto então não é necessária fazer
     % mais análises
-    if (flag1 == 0 || flag2 == 0)
+    if (flag_1 == 0 || flag_2 == 0)
         continue;
     end
    
@@ -146,7 +155,7 @@ for i =1:length(prof_b)
 
     %imagem 2
     %repetir criação dos pontos 3d para a segunda camara
-    imagesc(deptharray2)
+    %imagesc(deptharray2)
 
     %Compute XYZ from depth image (u,v) and depth z(u,v)- CHECK FILE
     xyz2=get_xyzasus(deptharray2(:)*1000,[480 640],(1:640*480)',Depth_cam.K,1,0);
@@ -166,20 +175,32 @@ for i =1:length(prof_b)
     % e depois é aplicado as matrizes de rotação e translação
     pc2=pointCloud(xyz2*tr.T+ones(length(xyz2),1)*tr.c(1,:),'Color',reshape(rgbd2,[480*640 3]));
     
-    %guardar os valores em 3D pertencentes ao objecto detetado, da camera 1
-    foreground = pc1.Location((480 * ra + ca),:);
-    
-    %aqui da camera 2
-    foreground = [foreground ; pc2.Location((480 * rb + cb),:)];
-    
-    %aqui remove-se os pontos que se encontram mal medidos (alguns pontos da camera não recebem de volta a radiação emitida )
-    foreground = foreground(foreground(:,3)>0.1,:);
-    
-    
-    %ir procurar os valores maximos e minimos que pertencem ao objecto
-    % sendo possivel criar uma caixa que englobe objecto
-    Maxs = max(foreground);%(retira o maximo valor de cada coordenada)
-    Mins = min(foreground);%(retira o mínimo valor de cada coordenada)
+    fim = 0;
+    % percorre todos os objectos encontrado pela camera 1
+    for object=1:flag_1
+        %guardar os valores em 3D pertencentes ao objecto detetado, da camera 1
+        foreground_1 = pc1.Location((480 * ra(fim+1:fim+size_1(object)) + ca(fim+1:fim+size_1(object))),:);%vai seleccionar as linhas linhas que pertencem ao objecto , começando pela linha que vem aseguir ao ultimo elemtento do objecto anterior
+
+        %aqui da camera 2
+        foreground_2 = pc1.Location((480 * rb(fim+1:fim+size_2(object)) + cb(fim+1:fim+size_2(object))),:);%vai seleccionar as linhas linhas que pertencem ao objecto , começando pela linha que vem aseguir ao ultimo elemtento do objecto anterior
+
+        
+        %aqui remove-se os pontos que se encontram mal medidos (alguns pontos da camera não recebem de volta a radiação emitida )
+        foreground_1 = foreground_1(foreground_1(:,3)>0.1,:);
+        foreground_2 = foreground_2(foreground_2(:,3)>0.1,:);
+        
+        
+        %analisar aqui que se os dois foregrounds pertencem ao mesmo object
+        %caso contrário pensar numa solução, porenquanto assuminos que o
+        %tamanho é relativamente igual para os dois casos.
+
+        %ir procurar os valores maximos e minimos que pertencem ao objecto
+        % sendo possivel criar uma caixa que englobe objecto
+        Maxs(obj,:) = max([foreground_1;foreground_2]);%(retira o maximo valor de cada coordenada)
+        Mins(obj,:) = min([foreground_1;foreground_2]);%(retira o mínimo valor de cada coordenada)
+        %criar independentes valores de maximos e frame a ser analizado
+        obj = obj+1;
+    end
 
     
  end
