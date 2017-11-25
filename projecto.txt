@@ -115,7 +115,7 @@ vl_ubcmatch
 
 
 
-1 função, 5 argumentos max com 3 primeiros img1 img2 camaras-> RANSAC
+1 função, 5 argumentos max com 3 primeiros img1 img2 camaras-> RANSAC SIFT
 
 vlfeat
 
@@ -168,3 +168,57 @@ u = alfa/gamam = P1*(X~)/ P3*(X~) combinação linear    descobrir o P tipo de c
 parte 1 é dado a matriz
 
 parte 2 so é dado as imagens
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+dicas aula  13/11
+
+
+knnsearch  ---- 
+griddata
+k-means
+
+SOBEL
+
+criar linhas de 0 em locais entre dpos oobjectos   
+iterpolate background    griddata  não obrigatória    
+
+bordas da imagem are shit
+
+
+calculo de gradiente no foreground
+
+knnsearch  3D	sparce 30k*30k  connected componnents 3d in 
+
+
+
+
+
+
+

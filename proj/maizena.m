@@ -14,6 +14,7 @@ close all
 % análise
 myDir_prof = '../maizena/';
 
+%guardar todos os vectores de profundidade da camera 1
 prof_a=dir('../maizena/depth1*.mat');
 
 %inicializar a matriz que vai coter momentaneamente os valores das imagens
@@ -22,30 +23,31 @@ imgmed = zeros(480,640,length(prof_a));
 
 % agrupar todas as imagens de profundidade para que seja possivel encontrar
 % o background das imagens de cada 1 das cameras:
-
 for i=1:length(prof_a)
     load([myDir_prof prof_a(i).name])
-    imgmed(:,:,i) = double(depth_array)/1000;
+    imgmed(:,:,i) = double(depth_array)/1000;% divide-se por 100 pois nós queremos os dados em metros e nos ficheiros vêem em milimetros
 end
 
 %background camera a
-backGround_a = median(imgmed,3);% faz a mediana da imagem ao longo do tempo(3ª dimensão), logo irá detetar o back ground
+backGround_a = median(imgmed,3);% faz a mediana da imagem ao longo do tempo(3ª dimensão), logo irá criar uma imagem que corresponde aos valores mais comuns de cada pixel para a imagem de profundidade da câmera 1
 
 
 
-
+%guardar todos os vectores de profundidade da camera 2
 prof_b=dir('../maizena/depth2*.mat');
 for i=1:length(prof_b)
     load( [myDir_prof prof_b(i).name])
-    imgmed(:,:,i) = double(depth_array)/1000;
+    imgmed(:,:,i) = double(depth_array)/1000;% agrupar as imagens de profundidade ca camera 2
 end
+
 % background camera b
-backGround_b = median(imgmed,3);% faz a mediana da imagem ao longo do tempo(3ª dimensão), logo irá detetar o back ground
+backGround_b = median(imgmed,3);% faz a mediana da imagem ao longo do tempo(3ª dimensão), logo irá detetar o background
 
 
-% load the rgb images to analise
+% load the rgb images to analise 
+% directório e inicio do nome em que se irão encontras as imagens a ser analisadas
 myDir = '../maizena/rgb_image';
-ext_img = '.png.';
+ext_img = '.png.';%extensão dos ficheiros da imagem rgb a ser analisada
 
 %temos que alterar isto apra que as matrizes R e T corretas, podemos fazer
 %a função procrustes do professor de forma a termos/ ou feita com o VL feat
@@ -54,6 +56,7 @@ load ../maizena/rly_close.mat;
 % introduzir aqui o codigo do procrustes -> ou refazer os alinhamento pela
 % função procrustesfalso.m
 
+%percorrer todas as imagens
 for i =1:length(prof_b)
     
     %load da imagem de profundidade da camera 1, a divisão por 1000 vem do
@@ -70,20 +73,24 @@ for i =1:length(prof_b)
     %read rgb image 1
     im2 = imread([myDir '2_' int2str(i) ext_img]);
     
+
+    % mostar as duas imagens de forma ao utilizador se aperceber qual o frame a ser analizado
     figure (1)
-    imagesc(im1)
+    imagesc(im1)%imagem 1
     figure (2)
     pause(1)
-    imagesc(im2)
+    imagesc(im2)%imagem 2
     pause(1)
     
+
+
     %os valores de retorno são:
     %ra: as linhas que pertencem ao objecto,
     %ca: as colunas que pertencem ao objecto
     %flag1 serve para verificar se foi encontrado algum objecto 
-    [ra, ca, flag1] = getextremes_depth(deptharray1, backGround_a);
+    [ra, ca, flag1] = getextremes_depth(deptharray1, backGround_a);%esta função serve para encontrar os objectos pertecencentes ao background e trazer os locais(pixeis(linha e coluna)) onde estes se encontram
 
-    
+    % analizar na outra imagem
     [rb, cb, flag2] = getextremes_depth(deptharray2, backGround_b);
 
     
@@ -161,30 +168,19 @@ for i =1:length(prof_b)
     
     %guardar os valores em 3D pertencentes ao objecto detetado, da camera 1
     foreground = pc1.Location((480 * ra + ca),:);
+    
     %aqui da camera 2
-     Maxs = max(foreground);
-    Mins = min(foreground);
     foreground = [foreground ; pc2.Location((480 * rb + cb),:)];
-     Maxs = max(foreground);
-    Mins = min(foreground);
     
-    
+    %aqui remove-se os pontos que se encontram mal medidos (alguns pontos da camera não recebem de volta a radiação emitida )
     foreground = foreground(foreground(:,3)>0.1,:);
     
     
     %ir procurar os valores maximos e minimos que pertencem ao objecto
     % sendo possivel criar uma caixa que englobe objecto
-    Maxs = max(foreground);
-    Mins = min(foreground);
- 
- 
- 
-%% analisar aqui os resultados para ver se ó objecto ou não
-    %%so ate aqui importa acho eu
+    Maxs = max(foreground);%(retira o maximo valor de cada coordenada)
+    Mins = min(foreground);%(retira o mínimo valor de cada coordenada)
 
     
  end
-% temos os nomes das imagens guardadas em camera_a/b e prof_a/b
-
-
 
