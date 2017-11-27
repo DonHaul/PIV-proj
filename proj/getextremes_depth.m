@@ -4,6 +4,7 @@ function [ r,c, flag,size] = getextremes_depth( imagem, backGround )
 
     %flag que contem a informação se existe algum objecto na imagem a ser
     %analisada
+    imagemCamera = imagem;
     flag = 0;
     c= [];
     r = [];
@@ -11,9 +12,18 @@ function [ r,c, flag,size] = getextremes_depth( imagem, backGround )
     % subtraí o backgroudn à imagem a ser analizada para obter apenas 
     imagem = abs(double(imagem) - backGround)>0.25;%erro de 25 cm da camera de profundidade
     
+    RED = edge(imagem,'Sobel');
+    for i =1:480
+        for j=1:640
+            if RED(i,j)== 1
+                imagem(i,j)=0;
+            end
+        end
+    end
     % agrupa os pixeis em vizinhaça 8 ,dando um valor diferente de label
     % para cada conjunto
     imagem = bwlabel(imagem);
+    
     
     % guarda o valor em forma de matriz da imagem
     TEMP = imagem;

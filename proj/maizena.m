@@ -66,7 +66,8 @@ load ../maizena/rly_close.mat;
 % função procrustesfalso.m
 
 %percorrer todas as imagens
-for i =1:length(prof_b)
+%for i =1:length(prof_b)
+i= 9;
     
     %load da imagem de profundidade da camera 1, a divisão por 1000 vem do
     %facto de queremos em metros
@@ -139,9 +140,9 @@ for i =1:length(prof_b)
 
     % se não foi encontrado nenhum objecto então não é necessária fazer
     % mais análises
-    if (flag_1 == 0 || flag_2 == 0)
-        continue;
-    end
+%     if (flag_1 == 0 || flag_2 == 0)
+%         continue;
+%     end
    
  %Compute XYZ from depth image (u,v) and depth z(u,v)- CHECK FILE
  
@@ -182,13 +183,16 @@ for i =1:length(prof_b)
         foreground_1 = pc1.Location((480 * ra(fim+1:fim+size_1(object)) + ca(fim+1:fim+size_1(object))),:);%vai seleccionar as linhas linhas que pertencem ao objecto , começando pela linha que vem aseguir ao ultimo elemtento do objecto anterior
 
         %aqui da camera 2
-        foreground_2 = pc1.Location((480 * rb(fim+1:fim+size_2(object)) + cb(fim+1:fim+size_2(object))),:);%vai seleccionar as linhas linhas que pertencem ao objecto , começando pela linha que vem aseguir ao ultimo elemtento do objecto anterior
+        foreground_2 = pc2.Location((480 * rb(fim+1:fim+size_2(object)) + cb(fim+1:fim+size_2(object))),:);%vai seleccionar as linhas linhas que pertencem ao objecto , começando pela linha que vem aseguir ao ultimo elemtento do objecto anterior
 
         
-        %aqui remove-se os pontos que se encontram mal medidos (alguns pontos da camera não recebem de volta a radiação emitida )
+        %aqui remove-se os pontos que se encontram mal medidos (alguns pontos da camera não recebem de volta a radiação emitida  z=0)
         foreground_1 = foreground_1(foreground_1(:,3)>0.1,:);
         foreground_2 = foreground_2(foreground_2(:,3)>0.1,:);
         
+        pointclound1 = pointCloud(foreground_1);
+        pointclound2 = pointCloud(foreground_2);
+        pcshow(pcmerge(pointclound1,pointclound2,0.001));
         
         %analisar aqui que se os dois foregrounds pertencem ao mesmo object
         %caso contrário pensar numa solução, porenquanto assuminos que o
@@ -203,5 +207,5 @@ for i =1:length(prof_b)
     end
 
     
- end
+% end
 
