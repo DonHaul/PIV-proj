@@ -94,14 +94,7 @@ i= 9;
     
 
 
-    %os valores de retorno são:
-    %ra: as linhas que pertencem ao objecto,
-    %ca: as colunas que pertencem ao objecto
-    %flag1 serve para verificar se foi encontrado algum objecto 
-    [ra, ca, flag_1,size_1] = getextremes_depth(deptharray1, backGround_a);%esta função serve para encontrar os objectos pertecencentes ao background e trazer os locais(pixeis(linha e coluna)) onde estes se encontram
-
-    % analizar na outra imagem
-    [rb, cb, flag_2,size_2] = getextremes_depth(deptharray2, backGround_b);
+ 
 
     
     
@@ -176,22 +169,54 @@ i= 9;
     % e depois é aplicado as matrizes de rotação e translação
     pc2=pointCloud(xyz2*tr.T+ones(length(xyz2),1)*tr.c(1,:),'Color',reshape(rgbd2,[480*640 3]));
     
+    
+    
+       %os valores de retorno são:
+    %ra: as linhas que pertencem ao objecto,
+    %ca: as colunas que pertencem ao objecto
+    %flag1 serve para verificar se foi encontrado algum objecto 
+    
+    fg1 = abs(double(deptharray1) - backGround_a)>0.25;
+    fg2 = abs(double(deptharray2) - backGround_b)>0.25;
+    figure
+    imagesc(fg1);
+    figure
+    imagesc(fg2);
+    
+    bw1 = bwlabel(fg1,8);
+    bw2 = bwlabel(fg2,8);
+    figure
+    imagesc(bw1);
+    figure
+    imagesc(bw2);
+    
+    %%
+    [ra, ca, flag_1,size_1] = getextremes_depth(deptharray1, backGround_a);%esta função serve para encontrar os objectos pertecencentes ao background e trazer os locais(pixeis(linha e coluna)) onde estes se encontram
+
+    % analizar na outra imagem
+    [rb, cb, flag_2,size_2] = getextremes_depth(deptharray2, backGround_b);
+    
+    
+    %%
     fim = 0;
     % percorre todos os objectos encontrado pela camera 1
     for object=1:flag_1
         %guardar os valores em 3D pertencentes ao objecto detetado, da camera 1
-        foreground_1 = pc1.Location((480 * ra(fim+1:fim+size_1(object)) + ca(fim+1:fim+size_1(object))),:);%vai seleccionar as linhas linhas que pertencem ao objecto , começando pela linha que vem aseguir ao ultimo elemtento do objecto anterior
+        %foreground_1 = pc1.Location((640 * ra(fim+1:fim+size_1(object)) + ca(fim+1:fim+size_1(object))),:);%vai seleccionar as linhas linhas que pertencem ao objecto , começando pela linha que vem aseguir ao ultimo elemtento do objecto anterior
+        foreground_1 = pc1.Location(640 * ra + ca,:);%vai seleccionar as linhas linhas que pertencem ao objecto , começando pela linha que vem aseguir ao ultimo elemtento do objecto anterior
 
         %aqui da camera 2
-        foreground_2 = pc2.Location((480 * rb(fim+1:fim+size_2(object)) + cb(fim+1:fim+size_2(object))),:);%vai seleccionar as linhas linhas que pertencem ao objecto , começando pela linha que vem aseguir ao ultimo elemtento do objecto anterior
+       % foreground_2 = pc2.Location((640 * rb(fim+1:fim+size_2(object)) + cb(fim+1:fim+size_2(object))),:);%vai seleccionar as linhas linhas que pertencem ao objecto , começando pela linha que vem aseguir ao ultimo elemtento do objecto anterior
+        foreground_2 = pc2.Location(640 * rb + cb,:);%vai seleccionar as linhas linhas que pertencem ao objecto , começando pela linha que vem aseguir ao ultimo elemtento do objecto anterior
 
         
         %aqui remove-se os pontos que se encontram mal medidos (alguns pontos da camera não recebem de volta a radiação emitida  z=0)
-        foreground_1 = foreground_1(foreground_1(:,3)>0.1,:);
-        foreground_2 = foreground_2(foreground_2(:,3)>0.1,:);
-        
+%         foreground_1 = foreground_1(foreground_1(:,3)>0.1,:);
+%         foreground_2 = foreground_2(foreground_2(:,3)>0.1,:);
+%         
         pointclound1 = pointCloud(foreground_1);
         pointclound2 = pointCloud(foreground_2);
+        figure
         pcshow(pcmerge(pointclound1,pointclound2,0.001));
         
         %analisar aqui que se os dois foregrounds pertencem ao mesmo object
