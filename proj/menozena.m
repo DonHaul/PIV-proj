@@ -77,50 +77,12 @@ i= 9;
 %      figure
 %      imagesc(im2)%imagem 2
 %      
- 
-    %calcular a posição 3D de todos os pontos pertencentes à imagem 1,
-    %começando por analisar no dominio da camera de profundidade
-    xyz1=get_xyzasus(deptharray1(:)*1000,[480 640],(1:640*480)',Depth_cam.K,1,0);
-
-    %Compute "virtual image" aligned with depth
-    % juntar valores rgb para os valores 3D calculados anteriormente
-    rgbd1=get_rgbd(xyz1,im1,R_d_to_rgb,T_d_to_rgb,RGB_cam.K);
-
-%     figure
-%      imagesc(rgbd1)%imagem 1
     
-    %imagem 2
-    %repetir criação dos pontos 3d para a segunda camara
-    %imagesc(deptharray2)
-
-    %Compute XYZ from depth image (u,v) and depth z(u,v)- CHECK FILE
-    xyz2=get_xyzasus(deptharray2(:)*1000,[480 640],(1:640*480)',Depth_cam.K,1,0);
-
-    %Compute "virtual image" aligned with depth
-    rgbd2=get_rgbd(xyz2,im2,R_d_to_rgb,T_d_to_rgb,RGB_cam.K);
-    
-    % gerar a point cloud para a camera 1 a partir dos valores calculados
-    % anteriormente, considerando que é na camera 1 que se encontra o
-    % referencial a ser usado para a caracterização do espaço
-    pc1=pointCloud(xyz1,'Color',reshape(rgbd1,[480*640 3]));
-    
-    xyz2in1=xyz2*tr.T+ones(length(xyz2),1)*tr.c(1,:);
-    
-    % gerar a pointcloud, a partir dos pontos gerados com o seu referencial
-    % e depois é aplicado as matrizes de rotação e translação
-    pc2=pointCloud(xyz2in1,'Color',reshape(rgbd2,[480*640 3]));
-%       figure
-%     pcshow(pc1);
-%     figure
-%     pcshow(pc2);
-    figure
-     pcshow(pcmerge(pc1,pc2,0.001));
-   
     %background subtraction (retor uns ou zeros)
     fg1 = abs(double(deptharray1) - backGround_a)>0.25;
     fg2 = abs(double(deptharray2) - backGround_b)>0.25;
     
-    %elimina zeros
+    %elimina os zeros do foreground (fg fica com fator de escala marado but its ok)
     fg1= fg1 .*double(deptharray1);
     fg2= fg2 .*double(deptharray2);
     
@@ -129,11 +91,20 @@ i= 9;
      figure
      imagesc(deptharray2);
     
+     
+     %%
+     %INSERIR AQUI AS MERDAS PARA O GRADIENTE FICAR FIXE
+     
+     
+     
+     %%
+     
       figure
      imagesc(fg1);
       figure
      imagesc(fg2);
     %%
+    %faz black and white label
     bw1 = bwlabel(fg1,8);
     bw2 = bwlabel(fg2,8);
      figure
@@ -141,7 +112,7 @@ i= 9;
      figure
      imagesc(bw2);
 
- 
+ %encontra labels maiores que 1000
    labelCounts1=tabulate(bw1(:));
     labelCounts2=tabulate(bw2(:));
    
@@ -154,6 +125,8 @@ i= 9;
  goodLabels2(find(max(labelCounts2(:,2))))=[];
   goodLabels1(find(max(labelCounts1(:,2))))=[];
   
+  
+  %gera imagem onde 1 corresponde aos  pixeis os objetos else sao 0
   goodItems1=zeros(480,640);
   for i=1:length(goodLabels1)
   goodItems1=goodItems1 | bw1==goodLabels1(i);
@@ -168,6 +141,8 @@ imagesc(goodItems1);
 figure
 imagesc(goodItems2);
 
+
+%vai buscar ao depth array apenas os objetos bons
 depthArrayFG1= deptharray1.*goodItems1;
 depthArrayFG2= deptharray2.*goodItems2;
 
@@ -176,24 +151,23 @@ depthArrayFG2= deptharray2.*goodItems2;
 % figure
 % imagesc(depthArrayFG2);
 
+%converte para 3D tais pixeis
 xyzFG1=get_xyzasus(depthArrayFG1(:)*1000,[480 640],(1:640*480)',Depth_cam.K,1,0);
 xyzFG2=get_xyzasus(depthArrayFG2(:)*1000,[480 640],(1:640*480)',Depth_cam.K,1,0);
-%elimina zeros
 
-%%
+
+%elimina zeros dos pontos 3d
  xyzFG1(  all(~xyzFG1,2), :  ) = [];
  xyzFG2(  all(~xyzFG2,2), :  ) = [];
 
-%%
+%faz point clouds dos foregrounds e faz merge destes
 pcFG1=pointCloud(xyzFG1);
 xyz2FGin1FG=xyzFG2*tr.T+ones(length(xyzFG2),1)*tr.c(1,:);
-    
-    % gerar a pointcloud, a partir dos pontos gerados com o seu referencial
-    % e depois é aplicado as matrizes de rotação e translação
- pcFG2=pointCloud(xyz2FGin1FG);
+ 
+pcFG2=pointCloud(xyz2FGin1FG);
 %       figure
 %     pcshow(pc1);
 %     figure
 %     pcshow(pc2);
-    figure
-     pcshow(pcmerge(pcFG1,pcFG2,0.001));
+figure
+pcshow(pcmerge(pcFG1,pcFG2,0.001));
