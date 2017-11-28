@@ -72,11 +72,11 @@ i= 9;
     
 
     % mostar as duas imagens de forma ao utilizador se aperceber qual o frame a ser analizado
-%     figure
-%     imagesc(im1)%imagem 1
-%     figure
-%     imagesc(im2)%imagem 2
-     
+%      figure
+%      imagesc(im1)%imagem 1
+%      figure
+%      imagesc(im2)%imagem 2
+%      
  
     %calcular a posição 3D de todos os pontos pertencentes à imagem 1,
     %começando por analisar no dominio da camera de profundidade
@@ -86,6 +86,9 @@ i= 9;
     % juntar valores rgb para os valores 3D calculados anteriormente
     rgbd1=get_rgbd(xyz1,im1,R_d_to_rgb,T_d_to_rgb,RGB_cam.K);
 
+%     figure
+%      imagesc(rgbd1)%imagem 1
+    
     %imagem 2
     %repetir criação dos pontos 3d para a segunda camara
     %imagesc(deptharray2)
@@ -117,22 +120,26 @@ i= 9;
     fg1 = abs(double(deptharray1) - backGround_a)>0.25;
     fg2 = abs(double(deptharray2) - backGround_b)>0.25;
     
-    figure
-    imagesc(deptharray1);
-    figure
-    imagesc(deptharray2);
+    %elimina zeros
+    fg1= fg1 .*double(deptharray1);
+    fg2= fg2 .*double(deptharray2);
     
-%      figure
-%     imagesc(fg1);
-%      figure
-%     imagesc(fg2);
+     figure
+     imagesc(deptharray1);
+     figure
+     imagesc(deptharray2);
+    
+      figure
+     imagesc(fg1);
+      figure
+     imagesc(fg2);
     %%
     bw1 = bwlabel(fg1,8);
     bw2 = bwlabel(fg2,8);
-    figure
-    imagesc(bw1);
-    figure
-    imagesc(bw2);
+     figure
+     imagesc(bw1);
+     figure
+     imagesc(bw2);
 
  
    labelCounts1=tabulate(bw1(:));
@@ -144,32 +151,38 @@ i= 9;
     
     %removes bg from goodlabels encontra o max das counts e remove o dos
     %good labels
- goodLabels2(find(max(labelCounts2(:,2))))=[]
-  goodLabels1(find(max(labelCounts1(:,2))))=[]
+ goodLabels2(find(max(labelCounts2(:,2))))=[];
+  goodLabels1(find(max(labelCounts1(:,2))))=[];
   
-goodItems1=  bw1==249 | bw1==347;
+  goodItems1=zeros(480,640);
+  for i=1:length(goodLabels1)
+  goodItems1=goodItems1 | bw1==goodLabels1(i);
+  end
 figure
 imagesc(goodItems1);
 
-goodItems2=  bw2==99 | bw2==127;
+  goodItems2=zeros(480,640);
+  for i=1:length(goodLabels2)
+  goodItems2=goodItems2 | bw2==goodLabels2(i);
+  end
 figure
 imagesc(goodItems2);
 
 depthArrayFG1= deptharray1.*goodItems1;
 depthArrayFG2= deptharray2.*goodItems2;
 
- figure
-imagesc(depthArrayFG1);
-figure
-imagesc(depthArrayFG2);
+%  figure
+% imagesc(depthArrayFG1);
+% figure
+% imagesc(depthArrayFG2);
 
 xyzFG1=get_xyzasus(depthArrayFG1(:)*1000,[480 640],(1:640*480)',Depth_cam.K,1,0);
 xyzFG2=get_xyzasus(depthArrayFG2(:)*1000,[480 640],(1:640*480)',Depth_cam.K,1,0);
 %elimina zeros
 
 %%
- xyzFG1(  all(~xyzFG1,2), :  ) = []
- xyzFG2(  all(~xyzFG2,2), :  ) = []
+ xyzFG1(  all(~xyzFG1,2), :  ) = [];
+ xyzFG2(  all(~xyzFG2,2), :  ) = [];
 
 %%
 pcFG1=pointCloud(xyzFG1);
