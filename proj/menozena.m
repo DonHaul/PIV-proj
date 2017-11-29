@@ -1,6 +1,6 @@
 
 %%
-% clear 
+clear 
 close all
 
 % Directório onde se encontram as imagens de profundidade e de rgb para
@@ -93,10 +93,14 @@ i= 9;
     
      
      %%
-     %INSERIR AQUI AS MERDAS PARA O GRADIENTE FICAR FIXE
-     
-     
-     
+     %INSERIR AQUI AS MERDAS PARA O GRADIENTE FICAR FIXE done prob 
+%      
+     [Gmag,Gdir] = imgradient(fg1);% magnitude e direcção do gradiente de cada uma das imagens
+     Gmag(Gmag<0.3)=0;%remove os valores muito baixos do gradiente para que alterações insignificantes sejam ignorados
+     fg1 = fg1.*~Gmag;% locais de elevado gradiente vão passar a ter 0, causando que os considremos como background, logo as edges de cada objecto localizado na imagem sejam identificados.
+     [Gmag,Gdir] = imgradient(fg2);
+     Gmag(Gmag<0.3)=0;
+     fg2 = fg2.*~Gmag;
      %%
      
       figure
