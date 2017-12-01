@@ -1,6 +1,6 @@
 
 %%
-clear 
+clear
 close all
 
 % Directório onde se encontram as imagens de profundidade e de rgb para
@@ -11,7 +11,7 @@ myDir_prof = '../maizena/';
 prof_a=dir('../maizena/depth1*.mat');
 
 %inicializar a matriz que vai coter momentaneamente os valores das imagens
-%de profundidade 
+%de profundidade
 imgmed = zeros(480,640,length(prof_a));
 
 % agrupar todas as imagens de profundidade para que seja possivel encontrar
@@ -37,13 +37,13 @@ backGround_b = median(imgmed,3);% faz a mediana da imagem ao longo do tempo(3ª d
 
 %% aqui para cima fazer função de descobriri background
 
-% 
+%
 % figure
 %     imagesc(backGround_a)
 % figure
 %    imagesc(backGround_b)
 
-% load the rgb images to analise 
+% load the rgb images to analise
 % directório e inicio do nome em que se irão encontras as imagens a ser analisadas
 myDir = '../maizena/rgb_image';
 ext_img = '.png.';%extensão dos ficheiros da imagem rgb a ser analisada
@@ -56,8 +56,12 @@ load ../maizena/rly_close.mat;
 % função procrustesfalso.m
 
 %percorrer todas as imagens
-%for i =1:length(prof_b)
-    i=9;
+
+descriptors=[];
+objects_size = 0;
+objects = {};
+for i =9:length(prof_b)
+    
     %load da imagem de profundidade da camera 1, a divisão por 1000 vem do
     %facto de queremos em metros
     load([myDir_prof 'depth1_' int2str(i) '.mat'])
@@ -73,136 +77,92 @@ load ../maizena/rly_close.mat;
     
     im2 = imread([myDir '2_' int2str(i) ext_img]);
     
-    [FG_pts,num_obj] = getForeGroundpts(backGround_a,backGround_b,deptharray1,deptharray2,im1,im2);
+    [FG_pts,num_obj,depthArrayFG1,depthArrayFG2,frames_obj] = getForeGroundpts(backGround_a,backGround_b,deptharray1,deptharray2,im1,im2);
     
-
-    % mostar as duas imagens de forma ao utilizador se aperceber qual o frame a ser analizado
-%      figure
-%      imagesc(im1)%imagem 1
-%      figure
-%      imagesc(im2)%imagem 2
-%      
-%     
-%     %background subtraction (retor uns ou zeros)
-%     fg1 = abs(double(deptharray1) - backGround_a)>0.25;
-%     fg2 = abs(double(deptharray2) - backGround_b)>0.25;
-%     
-%     %elimina os zeros do foreground (fg fica com fator de escala marado but its ok)
-%     fg1= fg1 .*double(deptharray1);
-%     fg2= fg2 .*double(deptharray2);
-%     
-%      figure
-%      imagesc(deptharray1);
-%      figure
-%      imagesc(deptharray2);
-%     
-%      
-%      %%
-%      %INSERIR AQUI AS MERDAS... PARA O GRADIENTE FICAR FIXE done prob 
-% %      
-%      [Gmag,Gdir] = imgradient(fg1);% magnitude e direcção do gradiente de cada uma das imagens
-%      Gmag(Gmag<0.3)=0;%remove os valores muito baixos do gradiente para que alterações insignificantes sejam ignorados
-%      fg1 = fg1.*~Gmag;% locais de elevado gradiente vão passar a ter 0, causando que os considremos como background, logo as edges de cada objecto localizado na imagem sejam identificados.
-%      [Gmag,Gdir] = imgradient(fg2);
-%      Gmag(Gmag<0.3)=0;
-%      fg2 = fg2.*~Gmag;
-%      %%
-%      
-%       figure
-%      imagesc(fg1);
-%       figure
-%      imagesc(fg2);
-%     %%
-%     %faz black and white label
-%     bw1 = bwlabel(fg1,8);
-%     bw2 = bwlabel(fg2,8);
-%      figure
-%      imagesc(bw1);
-%      figure
-%      imagesc(bw2);
-% 
-%  %encontra labels maiores que 1000
-%    labelCounts1=tabulate(bw1(:));
-%     labelCounts2=tabulate(bw2(:));
-%    
-%     %devolve o indice do label e consequentemente o label
-%     goodLabels1 =find(labelCounts1(:,2)>1000)-1;
-%     goodLabels2 =find(labelCounts2(:,2)>1000)-1;
-%     
-%     %removes bg from goodlabels encontra o max das counts e remove o dos
-%     %good labels
-%  goodLabels2(find(max(labelCounts2(:,2))))=[];
-%   goodLabels1(find(max(labelCounts1(:,2))))=[];
-%   
-%   
-%   %gera imagem onde 1 corresponde aos  pixeis os objetos else sao 0
-%   goodItems1=zeros(480,640);
-%   for i=1:length(goodLabels1)
-%   goodItems1=goodItems1 | bw1==goodLabels1(i);
-%   end
-% figure
-% imagesc(goodItems1);
-% 
-%   goodItems2=zeros(480,640);
-%   for i=1:length(goodLabels2)
-%   goodItems2=goodItems2 | bw2==goodLabels2(i);
-%   end
-% figure
-% imagesc(goodItems2);
-% 
-% 
-% %vai buscar ao depth array apenas os objetos bons
-% depthArrayFG1= deptharray1.*goodItems1;
-% depthArrayFG2= deptharray2.*goodItems2;
-% 
-% %  figure
-% % imagesc(depthArrayFG1);
-% % figure
-% % imagesc(depthArrayFG2);
-% 
-% %converte para 3D tais pixeis
-% xyzFG1=get_xyzasus(depthArrayFG1(:)*1000,[480 640],(1:640*480)',Depth_cam.K,1,0);
-% xyzFG2=get_xyzasus(depthArrayFG2(:)*1000,[480 640],(1:640*480)',Depth_cam.K,1,0);
-% 
-% 
-% %elimina zeros dos pontos 3d
-%  xyzFG1(  all(~xyzFG1,2), :  ) = [];
-%  xyzFG2(  all(~xyzFG2,2), :  ) = [];
-% 
-% %faz point clouds dos foregrounds e faz merge destes
-% pcFG1=pointCloud(xyzFG1);
-% xyz2FGin1FG=xyzFG2*tr.T+ones(length(xyzFG2),1)*tr.c(1,:);
-%  
-% pcFG2=pointCloud(xyz2FGin1FG);
-% %       figure
-% %     pcshow(pc1);
-% %     figure
-% %     pcshow(pc2);
-% figure
-
-%%
-pontos=FG_pts.Location;
-
-  IDX = kmeans(pontos,num_obj);
-
-for i=1: num_obj
-    obj=pontos(find(IDX==i),:);
+    num_obj
+        
     
-    exrtremes1 = max(obj);
-minions1 = min(obj);
+    for k = 1:num_obj
+%         figure
+%         imagesc(frames_obj(:,:,k));
+        [row,col]=find(frames_obj(:,:,k)==1);
+        maximum = max([row';col']');
+        minimum = min([row';col']');
+        moldura = zeros(480,640);
+        
+        moldura((minimum(1)-3:maximum(1)+30),(minimum(2)-3):(maximum(2)+3))=1;
+        
+        
+        
+        
+        deptharray_obj = deptharray1.*moldura;
+        xyz1=get_xyzasus(deptharray_obj(:)*1000,[480 640],(1:640*480)',Depth_cam.K,1,0);
+        
+        rgbd=get_rgbd(xyz1,im1,R_d_to_rgb,T_d_to_rgb,RGB_cam.K);
+        
+        imagesc(rgbd)
+        
+        I = single(rgb2gray(rgbd));
+        %I1 = single(rgb2gray(im1));
+        
+        %[fa,da] = vl_sift(I1);
+        [f,d] = vl_sift(I);
+        
+        high_score =0;
+        
+        for j = 1:length(objects)
+            [matches,scores] = vl_ubcmatch(d,objects(j).descriptor);
+   
+            if (high_score < length(matches))
+                high_score = length(matches)
+                i
+                found = j;
+            end
+        end
+        
+        if(high_score < 10)
+            objects(length(objects)+1).descriptor = d;%aqui vai ser inserido o primeiro objecto log nas linhas seguintes nõa vai ser preciso por o factor +1 nas linhas seguintes
+            objects(length(objects)).X = [];
+            objects(length(objects)).Y = [];
+            objects(length(objects)).Z = [];
+            
+            objects(length(objects)).frames_tracked = i;
+            objects(length(objects)).label(
+        else
+            objects(found).frames_tracked =[objects(found).frames_tracked , i] ;
+        %         perm = randperm(size(fb,2));
+        %         h1 = vl_plotframe(fb(:,perm));
+        end
+    end
     
-objects(i).X = [minions1(1),minions1(1),minions1(1),minions1(1), exrtremes1(1) ,exrtremes1(1) ,exrtremes1(1) ,exrtremes1(1)]
-
-objects(i).Y = [minions1(2),minions1(2), exrtremes1(2) ,exrtremes1(2) ,minions1(2),minions1(2),exrtremes1(2) ,exrtremes1(2)]
-
-objects(i).Z = [minions1(3) ,exrtremes1(3) ,minions1(3) ,exrtremes1(3) ,minions1(3) ,exrtremes1(3) ,minions1(3) ,exrtremes1(3)]
-
+    
+    
+    %[matches,scores] = vl_ubcmatch(da,db);
+    
+    
+    
+    pontos=FG_pts.Location;
+    
+    IDX = kmeans(pontos,num_obj);
+    
+    for m=1: num_obj
+        obj=pontos(find(IDX==m),:);
+        
+        exrtremes1 = max(obj);
+        minions1 = min(obj);
+%         
+        objects(m).X = [objects(m).X;minions1(1),minions1(1),minions1(1),minions1(1), exrtremes1(1) ,exrtremes1(1) ,exrtremes1(1) ,exrtremes1(1)];
+        
+        objects(m).Y = [objects(m).Y;minions1(2),minions1(2), exrtremes1(2) ,exrtremes1(2) ,minions1(2),minions1(2),exrtremes1(2) ,exrtremes1(2)];
+        
+        objects(m).Z = [objects(m).Z;minions1(3) ,exrtremes1(3) ,minions1(3) ,exrtremes1(3) ,minions1(3) ,exrtremes1(3) ,minions1(3) ,exrtremes1(3)];
+        
+%         
+        
+    end
+    
     
     
 end
-
-
-
-%end
 
 
