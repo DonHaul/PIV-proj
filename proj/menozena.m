@@ -78,8 +78,7 @@ for i =9:length(prof_b)
     im2 = imread([myDir '2_' int2str(i) ext_img]);
     
     [FG_pts,num_obj,depthArrayFG1,depthArrayFG2,frames_obj] = getForeGroundpts(backGround_a,backGround_b,deptharray1,deptharray2,im1,im2);
-    
-    num_obj
+  
         
     
     for k = 1:num_obj
@@ -100,7 +99,7 @@ for i =9:length(prof_b)
         
         rgbd=get_rgbd(xyz1,im1,R_d_to_rgb,T_d_to_rgb,RGB_cam.K);
         
-        imagesc(rgbd)
+       % imagesc(rgbd)
         
         I = single(rgb2gray(rgbd));
         %I1 = single(rgb2gray(im1));
@@ -114,8 +113,8 @@ for i =9:length(prof_b)
             [matches,scores] = vl_ubcmatch(d,objects(j).descriptor);
    
             if (high_score < length(matches))
-                high_score = length(matches)
-                i
+                high_score = length(matches);
+                %i
                 found = j;
             end
         end
@@ -127,7 +126,6 @@ for i =9:length(prof_b)
             objects(length(objects)).Z = [];
             
             objects(length(objects)).frames_tracked = i;
-            objects(length(objects)).label(
         else
             objects(found).frames_tracked =[objects(found).frames_tracked , i] ;
         %         perm = randperm(size(fb,2));
