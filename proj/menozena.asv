@@ -63,7 +63,7 @@ objects = {};
 num_obj_prev = {};
   frames_obj1_prev =[];
 
-for i =1:length(prof_b)
+for i =9:length(prof_b)
     
     %load da imagem de profundidade da camera 1, a divisão por 1000 vem do
     %facto de queremos em metros
@@ -82,9 +82,8 @@ for i =1:length(prof_b)
     
     [FG_pts,depthArrayFG1,depthArrayFG2,frames_obj1, frames_obj2] = getForeGroundpts(backGround_a,backGround_b,deptharray1,deptharray2,im1,im2);
   
-     if(isempty (frames_obj1))
-       continue;
-     end
+     
+       
 %     Z = linkage(FG_pts.Location);
 %     T = cluster(Z, 'cutoff', 0.05, 'criterion', 'distance') %5cm e nao 50
 %     dendrogram(Z)
@@ -316,8 +315,8 @@ if ~isempty(  frames_obj1_prev )
             
             [matches,scores] = vl_ubcmatch(miragaia_prev(n).d,miragaia(m).d);
             
-            if num_matches < length(matches)
-                num_matches = length(matches);
+            if num_matches > length(matches)
+                num_matches = length(mathes);
              found = n; %found e o antigo
              end  
         end
@@ -325,18 +324,17 @@ if ~isempty(  frames_obj1_prev )
               %adicionar ao obj m
               
  
-                objects(miragaia_prev(found).obj_prev).X=[objects(miragaia_prev(found).obj_prev).X ; miragaia(m).X];
-                objects(miragaia_prev(found).obj_prev).Y=[objects(miragaia_prev(found).obj_prev).Y ; miragaia(m).Y];
-                objects(miragaia_prev(found).obj_prev).Z=[objects(miragaia_prev(found).obj_prev).Z ; miragaia(m).Z];
-                objects(miragaia_prev(found).obj_prev).frames_tracked = [objects(miragaia_prev(found).obj_prev).frames_tracked,i];
-                miragaia(m).obj_prev = miragaia_prev(found).obj_prev;
+                objects(miragaia(found).obj_prev).X=[objects(miragaia(found).obj_prev).X ; miragaia(m).X];
+                objects(miragaia(found).obj_prev).Y=[objects(miragaia(found).obj_prev).Y ; miragaia(m).Y];
+                objects(miragaia(found).obj_prev).Z=[objects(miragaia(found).obj_prev).Z ; miragaia(m).Z];
+                objects(miragaia(found).obj_prev).frames_tracked = [objects(miragaia(found).obj_prev).frames_tracked,i];
             else 
                 objects(length(objects)+1).frames_tracked = i;
                 %ja adicionamos ja fica crto
                 objects(length(objects)).X = miragaia(m).X;
                 objects(length(objects)).Y = miragaia(m).Y;
                 objects(length(objects)).Z = miragaia(m).Z;
-                miragaia(m).obj_prev = length(objects);
+                miragaia(m).obj_prev = 
             end
     end
     
@@ -345,10 +343,9 @@ else
   
   objects=miragaia;
   
-  for t = 1:size(miragaia,2)
-  miragaia(t).obj_prev = t;
-  objects(t).frames_tracked = i;
-  end
+  
+  miragaia.obj_prev = [1:size(miragaia,2)];
+
   
 end
     

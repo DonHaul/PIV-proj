@@ -1,4 +1,4 @@
-function [ FG_pts,depthArrayFG1,depthArrayFG2,frame_obj1, frame_obj2] = getForeGroundpts( backGround_a,backGround_b,deptharray1,deptharray2,im1,im2 )
+function [ FG_pts , obj_num,depthArrayFG1,depthArrayFG2,frame_obj] = getForeGroundpts( backGround_a,backGround_b,deptharray1,deptharray2,im1,im2 )
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -10,11 +10,6 @@ load ../maizena/rly_close.mat;
 %      %figure
 %      %imagesc(im2)%%imagem 2
 %      
-FG_pts  = [];
-depthArrayFG1= [];
-depthArrayFG2= [];
-frame_obj1= [];
-frame_obj2 = [];
     
     %background subtraction (retor uns ou zeros)
     fg1 = abs(double(deptharray1) - backGround_a)>0.25;
@@ -66,24 +61,25 @@ frame_obj2 = [];
     %good labels
  goodLabels2(find(max(labelCounts2(:,2))))=[];
   goodLabels1(find(max(labelCounts1(:,2))))=[];
-
+  
+  
   %gera %imagem onde 1 corresponde aos  pixeis os objetos else sao 0
   goodItems1=zeros(480,640);
-  frame_obj1=zeros(480,640,length(goodLabels1));
+  frame_obj=zeros(480,640,length(goodLabels1));
   for i=1:length(goodLabels1)
   goodItems1=goodItems1 | bw1==goodLabels1(i);
   frame_obj1(:,:,i) =  bw1==goodLabels1(i);
   end
-% figure
-% imagesc(goodItems1);
+%figure
+%imagesc(goodItems1);
 
   goodItems2=zeros(480,640);
   for i=1:length(goodLabels2)
   goodItems2=goodItems2 | bw2==goodLabels2(i);
-  frame_obj2(:,:,i) =  bw2==goodLabels2(i);
+  frame_obj(:,:,i) =  bw1==goodLabels1(i);
   end
-% figure
-% imagesc(goodItems2);
+%figure
+%%imagesc(goodItems2);
 
 
 %vai buscar ao depth array apenas os objetos bons
@@ -113,7 +109,7 @@ pcFG2=pointCloud(xyz2FGin1FG);
 FG_pts=pcmerge(pcFG1,pcFG2,0.001);
 %pcshow(FG_pts);
 
-
+obj_num = max(length(goodLabels1),length(goodLabels2));
 
 end
 
