@@ -5,10 +5,10 @@ close all
 
 % Directório onde se encontram as imagens de profundidade e de rgb para
 % análise
-myDir_prof = '../maizena/';
+myDir_prof = '../maizena2/';
 
 %guardar todos os vectores de profundidade da camera 1
-prof_a=dir('../maizena/depth1*.mat');
+prof_a=dir('../maizena2/depth1*.mat');
 
 %inicializar a matriz que vai conter momentaneamente os valores das imagens
 %de profundidade
@@ -25,7 +25,7 @@ end
 backGround_a = median(imgmed,3);% faz a mediana da imagem ao longo do tempo(3ª dimensão), logo irá criar uma imagem que corresponde aos valores mais comuns de cada pixel para a imagem de profundidade da câmera 1
 
 %guardar todos os vectores de profundidade da camera 2
-prof_b=dir('../maizena/depth2*.mat');
+prof_b=dir('../maizena2/depth2*.mat');
 for i=1:length(prof_b)
     load( [myDir_prof prof_b(i).name])
     imgmed(:,:,i) = double(depth_array)/1000;% agrupar as imagens de profundidade ca camera 2
@@ -45,7 +45,7 @@ backGround_b = median(imgmed,3);% faz a mediana da imagem ao longo do tempo(3ª d
 
 % load the rgb images to analise
 % directório e inicio do nome em que se irão encontras as imagens a ser analisadas
-myDir = '../maizena/rgb_image';
+myDir = '../maizena2/rgb_image';
 ext_img = '.png.';%extensão dos ficheiros da imagem rgb a ser analisada
 
 %temos que alterar isto apra que as matrizes R e T corretas, podemos fazer
@@ -106,21 +106,39 @@ for i =1:length(prof_b)
         minimum = min([row';col']');
         moldura = zeros(480,640);
         
-        moldura((minimum(1)-3:maximum(1)+30),(minimum(2)-3):(maximum(2)+3))=1;
+        
+     
+        
+        deptharray_obj = deptharray1.*frames_obj1(:,:,k);
+        xyz1=get_xyzasus(deptharray_obj(:)*1000,[480 640],(1:640*480)',Depth_cam.K,1,0);
+        
+        rgbd=get_rgbd(xyz1,im1,R_d_to_rgb,T_d_to_rgb,RGB_cam.K);
+        
+        figure
+        imagesc(rgbd)
+        
+       
+        hsvImage = rgb2hsv(rgbd);
+        hImage = hsvImage(:,:,1);
+        PILA=hImage(:);
+         PILA(  all(~PILA,2), :  ) = [];
+         mean(PILA);
+         ramiro(k).hue_score = mean(PILA);
+     
+        
+          moldura((minimum(1)-3:maximum(1)+30),(minimum(2)-3):(maximum(2)+3))=1;
         
         deptharray_obj = deptharray1.*moldura;
         xyz1=get_xyzasus(deptharray_obj(:)*1000,[480 640],(1:640*480)',Depth_cam.K,1,0);
         
         rgbd=get_rgbd(xyz1,im1,R_d_to_rgb,T_d_to_rgb,RGB_cam.K);
         
-%         figure
-%         imagesc(rgbd)
-        
-        I = single(rgb2gray(rgbd));
+         I = single(rgb2gray(rgbd));
         %I1 = single(rgb2gray(im1));
         
         %[fa,da] = vl_sift(I1);
         [ramiro(k).f,ramiro(k).d] = vl_sift(I);
+        
         
    end
     par = zeros(size(frames_obj2,3),size(frames_obj1,3));%verse dimensao ta ccerto grafo
@@ -134,29 +152,51 @@ for i =1:length(prof_b)
         
         moldura((minimum(1)-3:maximum(1)+30),(minimum(2)-3):(maximum(2)+3))=1;
         
+        
         deptharray_obj = deptharray2.*moldura;
         xyz1=get_xyzasus(deptharray_obj(:)*1000,[480 640],(1:640*480)',Depth_cam.K,1,0);
         
         rgbd=get_rgbd(xyz1,im2,R_d_to_rgb,T_d_to_rgb,RGB_cam.K);
         
-%        figure
-%         imagesc(rgbd)
+     figure
+         imagesc(rgbd)
         
         I = single(rgb2gray(rgbd));
         %I1 = single(rgb2gray(im1));
         
         %[fa,da] = vl_sift(I1);
         [gois(k).f,gois(k).d] = vl_sift(I);
+        
+        moldura((minimum(1)-3:maximum(1)+30),(minimum(2)-3):(maximum(2)+3))=1;
+        
+        
+        deptharray_obj = deptharray2.*frames_obj2(:,:,k);
+        xyz1=get_xyzasus(deptharray_obj(:)*1000,[480 640],(1:640*480)',Depth_cam.K,1,0);
+        
+        rgbd=get_rgbd(xyz1,im2,R_d_to_rgb,T_d_to_rgb,RGB_cam.K);
+        
+        hsvImage = rgb2hsv(rgbd);
+        hImage = hsvImage(:,:,1);
+        PILA=hImage(:);
+         PILA(  all(~PILA,2), :  ) = [];
+         mean(PILA);
+         gois(k).hue_score = mean(PILA);
+     
    
         high_score=0;
-        
+        calc_score = 0;
         %compara os do obj1 com os do 2 (loopl dentro do loop)
        for j = 1:size(frames_obj1,3)
            
           [matches,scores] = vl_ubcmatch(gois(k).d,ramiro(j).d);
           
-          if (high_score < length(matches))
-                high_score = length(matches);
+          calc_score = length(matches)
+          calc_score = calc_score + 4*log(abs((1/(gois(k).hue_score - ramiro(j).hue_score))))
+          
+          
+          
+          if (high_score < calc_score)
+                high_score = calc_score;
                 %i
                 found = j;
           end
@@ -289,9 +329,9 @@ for i =1:length(prof_b)
 
         
         FG_pts=pcFG1;
-        figure
-        pcshow(FG_pts);
-        
+%         figure
+%         pcshow(FG_pts);
+%         
         exrtremes1 = max(FG_pts.Location);
         minions1 = min(FG_pts.Location);
 %         
@@ -374,7 +414,20 @@ end
     %%
 %load da imagem de profundidade da camera 1, a divisão por 1000 vem do
     %facto de queremos em metros
-    i=9;
+    
+   
+    
+        
+        for i=1:11
+            figure
+            hold on
+             for m = 1:length(objects)
+                 frame = find(objects(m).frames_tracked==i);
+                 if(frame)
+                      plot3(objects(m).X(frame,:) , objects(m).Y(frame,:),objects(m).Z(frame,:),'*')
+                 end
+             end
+                     
     
     load([myDir_prof 'depth1_' int2str(i) '.mat'])
     deptharray1 = double(depth_array)/1000;
@@ -388,13 +441,13 @@ end
     %read rgb image 1
     
     im2 = imread([myDir '2_' int2str(i) ext_img]);
-
-    figure(1);
-imagesc([im1 im2]);
-figure(2);
-imagesc([deptharray1 deptharray2]);
-xyz1=get_xyzasus(deptharray1(:),[480 640],1:640*480,Depth_cam.K,1,0);
-xyz2=get_xyzasus(deptharray2(:),[480 640],1:640*480,Depth_cam.K,1,0);
+% 
+%     figure(1);
+% imagesc([im1 im2]);
+% figure(2);
+% imagesc([deptharray1 deptharray2]);
+xyz1=get_xyzasus(deptharray1(:)*1000,[480 640],(1:640*480)',Depth_cam.K,1,0);
+xyz2=get_xyzasus(deptharray2(:)*1000,[480 640],(1:640*480)',Depth_cam.K,1,0);
 
 
 cl1=reshape(im1,480*640,3);
@@ -402,11 +455,11 @@ cl2=reshape(im2,480*640,3);
 
 p1=pointCloud(xyz1,'Color',cl1);
 p2=pointCloud(xyz2,'Color',cl2);
-
-figure(3)
-showPointCloud(p1);
-figure(4)
-showPointCloud(p2);
+% 
+% figure(3)
+% showPointCloud(p1);
+% figure(4)
+% showPointCloud(p2);
 
 xyz2in1=xyz2*tr.T+ones(length(xyz2),1)*tr.c(1,:);
  
@@ -415,5 +468,17 @@ p2=pointCloud(xyz2in1,'Color',cl2);
 
 
 pila=pcmerge(p1,p2,0.001);
-        figure
+%         figure
         pcshow(pila);
+%         hold on
+      
+        
+    
+%         
+%      figure(1);
+%      
+%      figure(2).
+%     im1 =imread( imgseq1(objects(23).frames_tracked(k)).rgb)
+%     imshow(im1)
+% pause();
+end
