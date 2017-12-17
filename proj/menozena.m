@@ -369,6 +369,51 @@ end
     frames_obj1_prev = frames_obj1;
     frames_obj2_prev = frames_obj2;
     
-    end
+end
+
+    %%
+%load da imagem de profundidade da camera 1, a divisão por 1000 vem do
+    %facto de queremos em metros
+    i=9;
+    
+    load([myDir_prof 'depth1_' int2str(i) '.mat'])
+    deptharray1 = double(depth_array)/1000;
+    
+    % profundidade camera 2
+    load([myDir_prof 'depth2_' int2str(i) '.mat'])
+    deptharray2 = double(depth_array)/1000;
+    
+    %read rgb image 1
+    im1 = imread([myDir '1_' int2str(i) ext_img]);
+    %read rgb image 1
+    
+    im2 = imread([myDir '2_' int2str(i) ext_img]);
+
+    figure(1);
+imagesc([im1 im2]);
+figure(2);
+imagesc([deptharray1 deptharray2]);
+xyz1=get_xyzasus(deptharray1(:),[480 640],1:640*480,Depth_cam.K,1,0);
+xyz2=get_xyzasus(deptharray2(:),[480 640],1:640*480,Depth_cam.K,1,0);
 
 
+cl1=reshape(im1,480*640,3);
+cl2=reshape(im2,480*640,3);
+
+p1=pointCloud(xyz1,'Color',cl1);
+p2=pointCloud(xyz2,'Color',cl2);
+
+figure(3)
+showPointCloud(p1);
+figure(4)
+showPointCloud(p2);
+
+xyz2in1=xyz2*tr.T+ones(length(xyz2),1)*tr.c(1,:);
+ 
+
+p2=pointCloud(xyz2in1,'Color',cl2);
+
+
+pila=pcmerge(p1,p2,0.001);
+        figure
+        pcshow(pila);
