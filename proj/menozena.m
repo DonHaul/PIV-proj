@@ -64,7 +64,7 @@ num_obj_prev = {};
   frames_obj1_prev =[];
 
 for i =1:length(prof_b)
-    
+    i=6;
     %load da imagem de profundidade da camera 1, a divisão por 1000 vem do
     %facto de queremos em metros
     load([myDir_prof 'depth1_' int2str(i) '.mat'])
@@ -142,7 +142,8 @@ for i =1:length(prof_b)
         
    end
     par = zeros(size(frames_obj2,3),size(frames_obj1,3));%verse dimensao ta ccerto grafo
-    
+    p = 1;
+    encontrado = [];
    for k = 1 :size(frames_obj2,3)
        [row,col]=find(frames_obj2(:,:,k)==1);
         
@@ -157,9 +158,7 @@ for i =1:length(prof_b)
         xyz1=get_xyzasus(deptharray_obj(:)*1000,[480 640],(1:640*480)',Depth_cam.K,1,0);
         
         rgbd=get_rgbd(xyz1,im2,R_d_to_rgb,T_d_to_rgb,RGB_cam.K);
-        
-     figure
-         imagesc(rgbd)
+     
         
         I = single(rgb2gray(rgbd));
         %I1 = single(rgb2gray(im1));
@@ -173,7 +172,13 @@ for i =1:length(prof_b)
         deptharray_obj = deptharray2.*frames_obj2(:,:,k);
         xyz1=get_xyzasus(deptharray_obj(:)*1000,[480 640],(1:640*480)',Depth_cam.K,1,0);
         
+     
+        
         rgbd=get_rgbd(xyz1,im2,R_d_to_rgb,T_d_to_rgb,RGB_cam.K);
+        
+              
+     figure
+         imagesc(rgbd)
         
         hsvImage = rgb2hsv(rgbd);
         hImage = hsvImage(:,:,1);
@@ -187,7 +192,9 @@ for i =1:length(prof_b)
         calc_score = 0;
         %compara os do obj1 com os do 2 (loopl dentro do loop)
        for j = 1:size(frames_obj1,3)
-           
+           if(find(encontrado == j))
+               continue;
+           end
           [matches,scores] = vl_ubcmatch(gois(k).d,ramiro(j).d);
           
           calc_score = length(matches)
@@ -199,6 +206,7 @@ for i =1:length(prof_b)
                 high_score = calc_score;
                 %i
                 found = j;
+                encontrado(p) = found;
           end
        end
            
@@ -217,14 +225,15 @@ for i =1:length(prof_b)
                
             end
             
-       
+   
        
        
    
    end
-   
+
    B = any(par);
    p = 0;
+        close all  
    for n=1:size(frames_obj2,3)
        
     for m=1:size(frames_obj1,3)
@@ -232,6 +241,7 @@ for i =1:length(prof_b)
         if(par(n,m)==1)
               p = p +1 ;
             miragaia(p).d = [ramiro(m).d , gois(n).d];  
+            miragaia(p).hue_score = (ramiro(m).hue_score + gois(n).hue_score)/2;
           
         %emparelha
          deptharray_obj1 = deptharray1.*frames_obj1(:,:,m);
@@ -278,7 +288,9 @@ for i =1:length(prof_b)
              disp('PIL')
            deptharray_obj2 = deptharray2.*frames_obj2(:,:,n);
             p = p +1 ;
-             miragaia(p).d =  gois(n).d;  
+            %objecto novo não é preciso concatenar
+             miragaia(p).d =  gois(n).d; 
+             miragaia(p).hue_score = gois(n).hue_score;
            
         xyz2=get_xyzasus(deptharray_obj2(:)*1000,[480 640],(1:640*480)',Depth_cam.K,1,0);
         
@@ -309,11 +321,14 @@ for i =1:length(prof_b)
     
    end
    
-    
+    %vê se matriz par tem colunas a zero
     if B(n) == 0
         p = p +1 ;
         disp('NOT');
+        
+            %não é preciso concatenar
               miragaia(p).d = ramiro(m).d ;  
+              miragaia(p).hue_score = ramiro(m).hue_score;
             
         deptharray_obj1 = deptharray1.*frames_obj1(:,:,m);
   
@@ -356,15 +371,16 @@ if ~isempty(  frames_obj1_prev )
             
             [matches,scores] = vl_ubcmatch(miragaia_prev(n).d,miragaia(m).d);
             
-            if num_matches < length(matches)
-                num_matches = length(matches);
+          
+            calc_score = calc_score + 4*log(abs((1/(miragaia(m).hue_score - miragaia_prev(n).hue_score))))
+            
+            if num_matches < calc_score
+                num_matches = calc_score;
              found = n; %found e o antigo
              end  
         end
             if num_matches > 30
               %adicionar ao obj m
-              
- 
                 objects(miragaia_prev(found).obj_prev).X=[objects(miragaia_prev(found).obj_prev).X ; miragaia(m).X];
                 objects(miragaia_prev(found).obj_prev).Y=[objects(miragaia_prev(found).obj_prev).Y ; miragaia(m).Y];
                 objects(miragaia_prev(found).obj_prev).Z=[objects(miragaia_prev(found).obj_prev).Z ; miragaia(m).Z];
