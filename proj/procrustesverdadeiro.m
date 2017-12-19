@@ -20,8 +20,10 @@ figure(2);imagesc(rgbd2 );
 
 pc1=pointCloud(xyz1,'Color',reshape(rgbd1,[480*640 3]));
 pc2=pointCloud(xyz2,'Color',reshape(rgbd2,[480*640 3]));
-figure(3);clf; showPointCloud(pc1);
-figure(4);clf; showPointCloud(pc2);
+figure(3); showPointCloud(pc1);
+figure(4); showPointCloud(pc2);
+
+%%
 %GET CORRESPONDING POINTS
 
 
@@ -99,6 +101,27 @@ figure(4);clf; showPointCloud(pc2);
 
         FG_pts=pcmerge(pc1,pc2,0.001)
         pcshow(FG_pts);
+        
+        
+    xyz1=get_xyzasus(dep1(:),[480 640],(1:640*480)', Depth_cam.K,1,0);
+    xyz2=get_xyzasus(dep2(:),[480 640],(1:640*480)', Depth_cam.K,1,0);
+    rgbd1 = get_rgbd(xyz1, im1, R_d_to_rgb, T_d_to_rgb, RGB_cam.K);
+    rgbd2 = get_rgbd(xyz2, im2, R_d_to_rgb, T_d_to_rgb, RGB_cam.K);
+    pc1=pointCloud(xyz1,'Color',reshape(rgbd1,[480*640 3]));
+    pc2=pointCloud(xyz2*tr.T+ones(length(xyz2),1)*tr.c(1,:),'Color',reshape(rgbd2,[480*640 3]));
+    close all
+    %figure(1);hold off;
+    %showPointCloud(pc1)
+    pcshow(pcmerge(pc1,pc2,0.001));
+    drawnow;
+
+        
+        
+        
+        
+        
+        
+        
 %%
 np=6;
 figure(1);x1=zeros(np,1);y1=x1;x2=y1;y2=x1;
@@ -144,14 +167,7 @@ P1=P1(inds,:);P2=P2(inds,:);
         [ramiro(k).f,ramiro(k).d] = vl_sift(I);
 
 
-
-
-
-
-
 [d,xx,tr]=procrustes(P1,P2,'scaling',false,'reflection',false);
-
-
 
 
 
@@ -167,35 +183,3 @@ pause;
 
 
 %%
-xyz1=get_xyzasus(dep1(:),[480 640],(1:640*480)', Depth_cam.K,1,0);
-    xyz2=get_xyzasus(dep2(:),[480 640],(1:640*480)', Depth_cam.K,1,0);
-    rgbd1 = get_rgbd(xyz1, im1, R_d_to_rgb, T_d_to_rgb, RGB_cam.K);
-    rgbd2 = get_rgbd(xyz2, im2, R_d_to_rgb, T_d_to_rgb, RGB_cam.K);
-    pc1=pointCloud(xyz1,'Color',reshape(rgbd1,[480*640 3]));
-    pc2=pointCloud(xyz2*tr.T+ones(length(xyz2),1)*tr.c(1,:),'Color',reshape(rgbd2,[480*640 3]));
-    close all
-    %figure(1);hold off;
-    %showPointCloud(pc1)
-    pcshow(pcmerge(pc1,pc2,0.001));
-    drawnow;
-%% 
-%SHOW ALL CLOUDS FUSING
-d=dir('../imagens/data_rgb/rgb_image1_*');
-for i=1:length(d),
-    im1=imread(['../imagens/data_rgb/rgb_image1_' d(i).name(12:end-3) 'png']);
-    im2=imread(['../imagens/data_rgb/rgb_image2_' d(i).name(12:end-3) 'png']);
-    load(['../imagens/data_rgb/depth1_' d(i).name(12:end-3) 'mat'])
-    dep1=depth_array;
-    load(['../imagens/data_rgb/depth2_' d(i).name(12:end-3) 'mat'])
-    dep2=depth_array;
-    xyz1=get_xyzasus(dep1(:),[480 640],(1:640*480)', Depth_cam.K,1,0);
-    xyz2=get_xyzasus(dep2(:),[480 640],(1:640*480)', Depth_cam.K,1,0);
-    rgbd1 = get_rgbd(xyz1, im1, R_d_to_rgb, T_d_to_rgb, RGB_cam.K);
-    rgbd2 = get_rgbd(xyz2, im2, R_d_to_rgb, T_d_to_rgb, RGB_cam.K);
-    pc1=pointCloud(xyz1,'Color',reshape(rgbd1,[480*640 3]));
-    pc2=pointCloud(xyz2*tr.T+ones(length(xyz2),1)*tr.c(1,:),'Color',reshape(rgbd2,[480*640 3]));
-    figure(1);hold off;
-    %showPointCloud(pc1)
-    pcshow(pcmerge(pc1,pc2,0.001));
-    drawnow;
-end

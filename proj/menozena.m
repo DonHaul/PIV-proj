@@ -13,7 +13,6 @@ prof_a=dir('../maizena2/depth1*.mat');
 %inicializar a matriz que vai conter momentaneamente os valores das imagens
 %de profundidade
 imgmed = zeros(480,640,length(prof_a));
-
 % agrupar todas as imagens de profundidade para que seja possivel encontrar
 % o background das imagens de cada 1 das cameras:
 for i=1:length(prof_a)
