@@ -17,8 +17,8 @@ frame_obj1= [];
 frame_obj2 = [];
     
     %background subtraction (retor uns ou zeros)
-    fg1 = (double(deptharray1) - backGround_a) < - 0.25;
-    fg2 = (double(deptharray2) - backGround_b)< - 0.25; %sem abs
+    fg1 = abs(double(deptharray1) - backGround_a) > 0.2;
+    fg2 = abs(double(deptharray2) - backGround_b)> 0.2; %sem abs
     
     
     %elimina os zeros do foreground (fg fica com fator de escala marado but its ok)

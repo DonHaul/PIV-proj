@@ -79,8 +79,14 @@ for i =1:length(prof_b)
     
     im2 = imread([myDir '2_' int2str(i) ext_img]);
     
+    if(i ==18)
+        1+1
+    end
+    
     [FG_pts,depthArrayFG1,depthArrayFG2,frames_obj1, frames_obj2] = getForeGroundpts(backGround_a,backGround_b,deptharray1,deptharray2,im1,im2);
   
+    
+    
      if(isempty (frames_obj1))
        continue;
      end
@@ -119,10 +125,10 @@ for i =1:length(prof_b)
        
         hsvImage = rgb2hsv(rgbd);
         hImage = hsvImage(:,:,1);
-        PILA=hImage(:);
-         PILA(  all(~PILA,2), :  ) = [];
-         mean(PILA);
-         ramiro(k).hue_score = mean(PILA);
+        hue_image=hImage(:);
+         hue_image(  all(~hue_image,2), :  ) = [];
+         mean(hue_image);
+         ramiro(k).hue_score = mean(hue_image);
      
         
           moldura((minimum(1)-3:maximum(1)+30),(minimum(2)-3):(maximum(2)+3))=1;
@@ -181,10 +187,10 @@ for i =1:length(prof_b)
         
         hsvImage = rgb2hsv(rgbd);
         hImage = hsvImage(:,:,1);
-        PILA=hImage(:);
-         PILA(  all(~PILA,2), :  ) = [];
-         mean(PILA);
-         gois(k).hue_score = mean(PILA);
+        hue_image=hImage(:);
+         hue_image(  all(~hue_image,2), :  ) = [];
+         mean(hue_image);
+         gois(k).hue_score = mean(hue_image);
      
    
          
@@ -199,7 +205,7 @@ for i =1:length(prof_b)
           [matches,scores] = vl_ubcmatch(gois(k).d,ramiro(j).d);
           
           calc_score = length(matches);
-          calc_score = calc_score + 4*log(abs((1/(gois(k).hue_score - ramiro(j).hue_score))));
+          calc_score = calc_score + 10*log(abs((1/(gois(k).hue_score - ramiro(j).hue_score))));
           
           
           
@@ -233,9 +239,6 @@ for i =1:length(prof_b)
        
    
    end
-    if(i == 17)
-             1+1;
-         end
 
    B = any(par);
    p = 0;
@@ -321,9 +324,7 @@ for i =1:length(prof_b)
         miragaia(p).X = [minions1(1),minions1(1),minions1(1),minions1(1), exrtremes1(1) ,exrtremes1(1) ,exrtremes1(1) ,exrtremes1(1)];
         
        miragaia(p).Y = [minions1(2),minions1(2), exrtremes1(2) ,exrtremes1(2) ,minions1(2),minions1(2),exrtremes1(2) ,exrtremes1(2)];
-        
-       miragaia(p).Z = [minions1(3) ,exrtremes1(3) ,minions1(3) ,exrtremes1(3) ,minions1(3) ,exrtremes1(3) ,minions1(3) ,exrtremes1(3)];
-        
+                
     
     
    end
@@ -388,7 +389,7 @@ if ~isempty(  frames_obj1_prev )
            % separarmos entre as imagesn
              calc_score = length(matches);
           
-            calc_score = calc_score + 4*log(abs((1/(miragaia(m).hue_score - miragaia_prev(n).hue_score))));
+            calc_score = calc_score + 10*log(abs((1/(miragaia(m).hue_score - miragaia_prev(n).hue_score))));
             
             if num_matches < calc_score
                 num_matches = calc_score;
@@ -503,9 +504,9 @@ xyz2in1=xyz2*tr.T+ones(length(xyz2),1)*tr.c(1,:);
 p2=pointCloud(xyz2in1,'Color',cl2);
 
 
-pila=pcmerge(p1,p2,0.001);
+mergedpc=pcmerge(p1,p2,0.001);
 %         figure
-        pcshow(pila);
+        pcshow(mergedpc);
 %         hold on
       
         

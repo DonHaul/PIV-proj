@@ -40,7 +40,7 @@ figure(4); showPointCloud(pc2);
   deptharray_obj = dep2;
         xyz2=get_xyzasus(deptharray_obj(:),[480 640],(1:640*480)',Depth_cam.K,1,0);
         %ATENCAO APAZ RGB VIRTUal e nao o DA IMAGEM BOA
-        %         PILA
+        %         
         rgbd2=get_rgbd(xyz2,im2,R_d_to_rgb,T_d_to_rgb,RGB_cam.K);
         
          I2 = single(rgb2gray(im2));
@@ -80,8 +80,8 @@ figure(4); showPointCloud(pc2);
          
           xyz2in1=xyz_pts2*tr.T+ones(length(xyz_pts2),1)*tr.c(1,:);
           
-          pila = xyz2in1 - xyz_pts1;
-          norms = sqrt(sum(pila'.^2,1));
+          temp = xyz2in1 - xyz_pts1;
+          norms = sqrt(sum(temp'.^2,1));
           
          inliers_id = find( norms < 0.10); %PODE NAO ESTAR BEM, ATENÇÃO RAMIRAGOIS
           
@@ -122,7 +122,7 @@ figure(4); showPointCloud(pc2);
   deptharray_obj = dep2;
         xyz2=get_xyzasus(deptharray_obj(:),[480 640],(1:640*480)',Depth_cam.K,1,0);
         %ATENCAO APAZ RGB VIRTUal e nao o DA IMAGEM BOA
-        %         PILA
+        %         
         rgbd2=get_rgbd(xyz2,im2,R_d_to_rgb,T_d_to_rgb,RGB_cam.K);
                     pc1=pointCloud(xyz1,'Color',reshape(rgbd1,[480*640 3]));
     pc2=pointCloud(xyz2*tr.T+ones(length(xyz2),1)*tr.c(1,:),'Color',reshape(rgbd2,[480*640 3]));
@@ -134,8 +134,8 @@ figure(4); showPointCloud(pc2);
          
           xyz2in1=xyz_pts2*tr.T+ones(length(xyz_pts2),1)*tr.c(1,:);
           
-          pila = xyz2in1 - xyz_pts1;
-          norms = sqrt(sum(pila'.^2,1));
+          temp = xyz2in1 - xyz_pts1;
+          norms = sqrt(sum(temp'.^2,1));
           
          
          perm = best_inliers;
