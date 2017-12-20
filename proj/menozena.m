@@ -5,10 +5,10 @@ close all
 
 % Directório onde se encontram as imagens de profundidade e de rgb para
 % análise
-myDir_prof = '../maizena2/';
+myDir_prof = '../maizena/';
 
 %guardar todos os vectores de profundidade da camera 1
-prof_a=dir('../maizena2/depth1*.mat');
+prof_a=dir('../maizena/depth1*.mat');
 
 %inicializar a matriz que vai conter momentaneamente os valores das imagens
 %de profundidade
@@ -24,7 +24,7 @@ end
 backGround_a = median(imgmed,3);% faz a mediana da imagem ao longo do tempo(3ª dimensão), logo irá criar uma imagem que corresponde aos valores mais comuns de cada pixel para a imagem de profundidade da câmera 1
 
 %guardar todos os vectores de profundidade da camera 2
-prof_b=dir('../maizena2/depth2*.mat');
+prof_b=dir('../maizena/depth2*.mat');
 for i=1:length(prof_b)
     load( [myDir_prof prof_b(i).name])
     imgmed(:,:,i) = double(depth_array)/1000;% agrupar as imagens de profundidade ca camera 2
@@ -44,7 +44,7 @@ backGround_b = median(imgmed,3);% faz a mediana da imagem ao longo do tempo(3ª d
 
 % load the rgb images to analise
 % directório e inicio do nome em que se irão encontras as imagens a ser analisadas
-myDir = '../maizena2/rgb_image';
+myDir = '../maizena/rgb_image';
 ext_img = '.png.';%extensão dos ficheiros da imagem rgb a ser analisada
 
 %temos que alterar isto apra que as matrizes R e T corretas, podemos fazer
@@ -63,7 +63,7 @@ num_obj_prev = {};
   frames_obj1_prev =[];
 
 for i =1:length(prof_b)
-    i=6;
+   % i=6;
     %load da imagem de profundidade da camera 1, a divisão por 1000 vem do
     %facto de queremos em metros
     load([myDir_prof 'depth1_' int2str(i) '.mat'])
@@ -187,6 +187,8 @@ for i =1:length(prof_b)
          gois(k).hue_score = mean(PILA);
      
    
+         
+        
         high_score=0;
         calc_score = 0;
         %compara os do obj1 com os do 2 (loopl dentro do loop)
@@ -196,8 +198,8 @@ for i =1:length(prof_b)
            end
           [matches,scores] = vl_ubcmatch(gois(k).d,ramiro(j).d);
           
-          calc_score = length(matches)
-          calc_score = calc_score + 4*log(abs((1/(gois(k).hue_score - ramiro(j).hue_score))))
+          calc_score = length(matches);
+          calc_score = calc_score + 4*log(abs((1/(gois(k).hue_score - ramiro(j).hue_score))));
           
           
           
@@ -206,6 +208,7 @@ for i =1:length(prof_b)
                 %i
                 found = j;
                 encontrado(p) = found;
+              
           end
        end
            
@@ -221,6 +224,7 @@ for i =1:length(prof_b)
                 %está nas duas imagens
                 %EMPARELHATE
                 par(k, found) = 1;
+                  p = p+1;
                
             end
             
@@ -229,6 +233,9 @@ for i =1:length(prof_b)
        
    
    end
+    if(i == 17)
+             1+1;
+         end
 
    B = any(par);
    p = 0;
@@ -280,6 +287,7 @@ for i =1:length(prof_b)
    
     end
     
+    % está a mais acho eu
     if(par(n,m)==1)
         continue;
     end
@@ -362,20 +370,31 @@ for i =1:length(prof_b)
     
 %codigo relevante tracking
 if ~isempty(  frames_obj1_prev )
-    
+    encontrado = [];
+    p =1;
     for m=1:length(miragaia)
         
         num_matches = 0;
+        
         for n=1:length(miragaia_prev)
-            
-            [matches,scores] = vl_ubcmatch(miragaia_prev(n).d,miragaia(m).d);
-            
+          %  calc_score = 0;
           
-            calc_score = calc_score + 4*log(abs((1/(miragaia(m).hue_score - miragaia_prev(n).hue_score))))
+             if(find(encontrado == n))
+                 continue;
+             end
+          
+            [matches,scores] = vl_ubcmatch(miragaia_prev(n).d,miragaia(m).d);
+           % no caso dos miragaias acho que vai ser mais importante se nõa
+           % separarmos entre as imagesn
+             calc_score = length(matches);
+          
+            calc_score = calc_score + 4*log(abs((1/(miragaia(m).hue_score - miragaia_prev(n).hue_score))));
             
             if num_matches < calc_score
                 num_matches = calc_score;
              found = n; %found e o antigo
+             encontrado(p) = found;
+             
              end  
         end
             if num_matches > 30
@@ -385,6 +404,8 @@ if ~isempty(  frames_obj1_prev )
                 objects(miragaia_prev(found).obj_prev).Z=[objects(miragaia_prev(found).obj_prev).Z ; miragaia(m).Z];
                 objects(miragaia_prev(found).obj_prev).frames_tracked = [objects(miragaia_prev(found).obj_prev).frames_tracked,i];
                 miragaia(m).obj_prev = miragaia_prev(found).obj_prev;
+                p = p+1;
+                
             else 
                 objects(length(objects)+1).frames_tracked = i;
                 %ja adicionamos ja fica crto
@@ -434,7 +455,7 @@ end
     
         
         for i=1:11
-            figure
+         %   figure
             hold on
              for m = 1:length(objects)
                  frame = find(objects(m).frames_tracked==i);

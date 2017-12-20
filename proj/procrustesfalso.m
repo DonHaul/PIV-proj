@@ -25,8 +25,8 @@ figure(1);x1=zeros(np,1);y1=x1;x2=y1;y2=x1;
 for i=1:np,
     figure(1);
     [xa ya]=ginput(1);text(xa,ya,int2str(i));
-    xa=fix(xa);ya=fix(ya);
-    x1(i)=xa;y1(i)=ya;
+    xa=fix(xa);ya=fix(ya);%floor clicked values
+    x1(i)=xa;y1(i)=ya;%
     aux1=xyz1(sub2ind([480 640],ya,xa),:);
     figure(3);hold  on; plot3(aux1(1),aux1(2),aux1(3),'or','MarkerSize',10);
     hold off;
