@@ -20,7 +20,7 @@ pc2=pointCloud(xyz2,'Color',reshape(rgbd2,[480*640 3]));
 figure(3);clf; showPointCloud(pc1);
 figure(4);clf; showPointCloud(pc2);
 %GET CORRESPONDING POINTS
-np=6;
+np=9;
 figure(1);x1=zeros(np,1);y1=x1;x2=y1;y2=x1;
 for i=1:np,
     figure(1);
