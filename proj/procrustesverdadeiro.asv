@@ -135,18 +135,19 @@ dep2=depth_array;
     figure
     pcshow(pcmerge(pc1,pc2,0.001));
          
-
+       %converte os pts  
+       xyz2in1=xyz_pts2*tr.T+ones(length(xyz_pts2),1)*tr.c(1,:);
           
-         %vai buscar todos os bons inliers a ambos os vetores
-         perm = best_inliers;
-         P1 = xyz_pts1(perm,:);
-         P2 = xyz_pts2(perm,:);
-        
+          temp = xyz2in1 - xyz_pts1;
+          norms = sqrt(sum(temp'.^2,1));
+          
          
-         %vai buscar todos os bons inliers a ambos os vetores e calcula o
-         %procrustes
-         P1=P1(inds,:);
-         P2=P2(inds,:);
+         perm = best_inliers;
+          P1 = xyz_pts1(perm,:);
+         P2 = xyz_pts2(perm,:);
+
+           P1=P1(inds,:);
+           P2=P2(inds,:);
          [~,~,tr]=procrustes(P1,P2,'scaling',false,'reflection',false);
          
          
