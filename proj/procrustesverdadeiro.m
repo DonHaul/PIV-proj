@@ -1,11 +1,11 @@
-function [tr] = procrustesverdadeiro(file_name)
+function [tr] = procrustesverdadeiro(file_name,Depth_cam)
 
 
 %% threshold  pode estar mal<---------- <---------
 % READ IMAGES and GENERATE POINT CLOUDS
 
 
-load ../imagens/matlab.mat;
+load ../matlab.mat;
 im1=imread(['../' file_name '/rgb_image1_1.png']);
 im2=imread(['../' file_name '/rgb_image2_1.png']);
 load(['../' file_name '/depth1_1.mat'])
@@ -88,7 +88,7 @@ figure(4); showPointCloud(pc2);
           temp = xyz2in1 - xyz_pts1;
           norms = sqrt(sum(temp'.^2,1));
           
-         inliers_id = find( norms < 0.10); %PODE NAO ESTAR BEM, ATENÇÃO RAMIRAGOIS
+         inliers_id = find( norms < 1.0); %PODE NAO ESTAR BEM, ATENÇÃO RAMIRAGOIS
           
           if(length(inliers_id) > high_score_inliers)
               
@@ -166,7 +166,7 @@ figure(4); showPointCloud(pc2);
 
 
         
-        
+end
         
         
         

@@ -1,8 +1,10 @@
-function [ FG_pts,depthArrayFG1,depthArrayFG2,frame_obj1, frame_obj2] = getForeGroundpts( backGround_a,backGround_b,deptharray1,deptharray2,im1,im2 )
+function [ FG_pts,depthArrayFG1,depthArrayFG2,frame_obj1, frame_obj2] = getForeGroundpts( backGround_a,backGround_b,deptharray1,deptharray2,im1,im2, depth_cam,tr)
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
 
-load ../maizena/rly_close.mat;
+%load ../maizena/rly_close.mat;
+load ../matlab.mat;
+
 
     % mostar as duas %imagens de forma ao utilizador se aperceber qual o frame a ser analizado
 %      %figure

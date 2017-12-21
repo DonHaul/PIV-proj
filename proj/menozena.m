@@ -2,7 +2,7 @@
 %%
 clear
 close all
-file_name = 'maizena';
+file_name = 'livro';
 % Directório onde se encontram as imagens x\ profundidade e de rgb para
 % análise
 myDir_prof = ['../' file_name '/'];
@@ -51,7 +51,7 @@ ext_img = '.png.';%extensão dos ficheiros da imagem rgb a ser analisada
 %a função procrustes do professor de forma a termos/ ou feita com o VL feat
 % retornar em tr.T a matriz de rotação e tr.c a de translação
 load ../maizena/rly_close.mat;
-tr = procrustesverdadeiro(file_name);
+tr = procrustesverdadeiro(file_name,Depth_cam);
 % introduzir aqui o codigo do procrustes -> ou refazer os alinhamento pela
 % função procrustesfalso.m
 
@@ -85,7 +85,7 @@ for i =1:length(prof_b)
         1+1
     end
     
-    [FG_pts,depthArrayFG1,depthArrayFG2,frames_obj1, frames_obj2] = getForeGroundpts(backGround_a,backGround_b,deptharray1,deptharray2,im1,im2);
+    [FG_pts,depthArrayFG1,depthArrayFG2,frames_obj1, frames_obj2] = getForeGroundpts(backGround_a,backGround_b,deptharray1,deptharray2,im1,im2,Depth_cam,tr);
   
     ramiro = {};
    gois = {};
@@ -146,7 +146,16 @@ for i =1:length(prof_b)
          ramiro(k).hue_score = mean(hue_image);
      
         
-          moldura((minimum(1)-3:maximum(1)+30),(minimum(2)-3):(maximum(2)+3))=1;
+         
+         moldx_min = (minimum(1)-3>0).*(minimum(1)-3);
+        moldx_max = (maximum(1)+30<480).*(maximum(1)+30) +(~(maximum(1)+30<480)).*480;
+        moldy_min = (minimum(2)-3<640).*(minimum(2)-3);
+        moldy_max = (maximum(2)+3<640).*(maximum(2)+3) +(~(maximum(2)+3<640)).*640;
+        
+        moldura(moldx_min:moldx_max , moldy_min:moldy_max) = 1;
+         
+         
+         % moldura((minimum(1)-3:maximum(1)+30),(minimum(2)-3):(maximum(2)+3))=1;
         
         deptharray_obj = deptharray1.*moldura;
         xyz1=get_xyzasus(deptharray_obj(:)*1000,[480 640],(1:640*480)',Depth_cam.K,1,0);
@@ -174,7 +183,14 @@ for i =1:length(prof_b)
         minimum = min([row';col']');
         moldura = zeros(480,640);
         
-        moldura((minimum(1)-3:maximum(1)+30),(minimum(2)-3):(maximum(2)+3))=1;
+        moldx_min = (minimum(1)-3>0).*(minimum(1)-3);
+        moldx_max = (maximum(1)+30<480).*(maximum(1)+30) +(~(maximum(1)+30<480)).*480;
+        moldy_min = (minimum(2)-3<640).*(minimum(2)-3);
+        moldy_max = (maximum(2)+3<640).*(maximum(2)+3) +(~(maximum(2)+3<640)).*640;
+        
+        
+       % moldura((minimum(1)-3:maximum(1)+30),(minimum(2)-3):(maximum(2)+3))=1;
+       moldura(moldx_min:moldx_max , moldy_min:moldy_max) = 1;
         
         
         deptharray_obj = deptharray2.*moldura;
@@ -362,16 +378,19 @@ for i =1:length(prof_b)
     %vê se matriz par tem colunas a zero
     
     if(~isempty(frames_obj1))
-    
+    for n=1:size(frames_obj1,3)
+        if(length(B) == 1)
+            B = par;
+        end
     if B(n) == 0
         p = p +1 ;
         disp('NOT');
         
             %não é preciso concatenar
-              miragaia(p).d = ramiro(m).d ;  
-              miragaia(p).hue_score = ramiro(m).hue_score;
+              miragaia(p).d = ramiro(n).d ;  
+              miragaia(p).hue_score = ramiro(n).hue_score;
             
-        deptharray_obj1 = deptharray1.*frames_obj1(:,:,m);
+        deptharray_obj1 = deptharray1.*frames_obj1(:,:,n);
   
            
         xyz1=get_xyzasus(deptharray_obj1(:)*1000,[480 640],(1:640*480)',Depth_cam.K,1,0);
@@ -400,7 +419,8 @@ for i =1:length(prof_b)
     end
     
     end
-        
+       
+    end
 
     
     
