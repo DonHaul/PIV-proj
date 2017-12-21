@@ -2,13 +2,13 @@
 %%
 clear
 close all
-
-% Directório onde se encontram as imagens de profundidade e de rgb para
+file_name = 'livro';
+% Directório onde se encontram as imagens x\ profundidade e de rgb para
 % análise
-myDir_prof = '../maizena2/';
+myDir_prof = ['../' file_name '/'];
 
 %guardar todos os vectores de profundidade da camera 1
-prof_a=dir('../maizena2/depth1*.mat');
+prof_a=dir(['../' file_name '/depth1*.mat']);
 
 %inicializar a matriz que vai conter momentaneamente os valores das imagens
 %de profundidade
@@ -24,7 +24,7 @@ end
 backGround_a = median(imgmed,3);% faz a mediana da imagem ao longo do tempo(3ª dimensão), logo irá criar uma imagem que corresponde aos valores mais comuns de cada pixel para a imagem de profundidade da câmera 1
 
 %guardar todos os vectores de profundidade da camera 2
-prof_b=dir('../maizena2/depth2*.mat');
+prof_b=dir(['../' file_name '/depth2*.mat']);
 for i=1:length(prof_b)
     load( [myDir_prof prof_b(i).name])
     imgmed(:,:,i) = double(depth_array)/1000;% agrupar as imagens de profundidade ca camera 2
@@ -44,13 +44,14 @@ backGround_b = median(imgmed,3);% faz a mediana da imagem ao longo do tempo(3ª d
 
 % load the rgb images to analise
 % directório e inicio do nome em que se irão encontras as imagens a ser analisadas
-myDir = '../maizena2/rgb_image';
+myDir = ['../' file_name '/rgb_image'];
 ext_img = '.png.';%extensão dos ficheiros da imagem rgb a ser analisada
 
 %temos que alterar isto apra que as matrizes R e T corretas, podemos fazer
 %a função procrustes do professor de forma a termos/ ou feita com o VL feat
 % retornar em tr.T a matriz de rotação e tr.c a de translação
 load ../maizena/rly_close.mat;
+tr = procrustesverdadeiro(file_name,Depth_cam);
 % introduzir aqui o codigo do procrustes -> ou refazer os alinhamento pela
 % função procrustesfalso.m
 
@@ -61,9 +62,10 @@ objects_size = 0;
 objects = {};
 num_obj_prev = {};
   frames_obj1_prev =[];
+  frames_obj2_prev =[];
 
 for i =1:length(prof_b)
-    i=6;
+   % i=6;
     %load da imagem de profundidade da camera 1, a divisão por 1000 vem do
     %facto de queremos em metros
     load([myDir_prof 'depth1_' int2str(i) '.mat'])
@@ -79,11 +81,32 @@ for i =1:length(prof_b)
     
     im2 = imread([myDir '2_' int2str(i) ext_img]);
     
-    [FG_pts,depthArrayFG1,depthArrayFG2,frames_obj1, frames_obj2] = getForeGroundpts(backGround_a,backGround_b,deptharray1,deptharray2,im1,im2);
+    if(i ==18)
+        1+1
+    end
+    
+    [FG_pts,depthArrayFG1,depthArrayFG2,frames_obj1, frames_obj2] = getForeGroundpts(backGround_a,backGround_b,deptharray1,deptharray2,im1,im2,Depth_cam,tr);
   
-     if(isempty (frames_obj1))
-       continue;
-     end
+    ramiro = {};
+   gois = {};
+   miragaia = {};
+    
+    
+    % save computation
+    if(isempty(frames_obj2) && isempty(frames_obj1))
+           miragaia_prev = miragaia;
+    FG_pts_prev = FG_pts;
+
+    depthArrayFG1_prev = depthArrayFG1;
+    depthArrayFG2_prev = depthArrayFG2;
+    frames_obj1_prev = frames_obj1;
+    frames_obj2_prev = frames_obj2;
+        continue;
+    end
+%     
+%      if(isempty (frames_obj1))
+%        continue;
+%      end
 %     Z = linkage(FG_pts.Location);
 %     T = cluster(Z, 'cutoff', 0.05, 'criterion', 'distance') %5cm e nao 50
 %     dendrogram(Z)
@@ -92,13 +115,11 @@ for i =1:length(prof_b)
 
 
   % d_1 = zeros(1,size(frames_obj1,3));
-   %f_1 = zeros(1,size(frames_obj1,3));
-
-   ramiro = {};
-   gois = {};
-   miragaia = {};
+   %f_1 = zeros(1,size(frames_obj1,3)); 
    for k = 1:size(frames_obj1,3)
-        
+         if(isempty(frames_obj1))
+           break;
+       end
         [row,col]=find(frames_obj1(:,:,k)==1);
         
      	maximum = max([row';col']');
@@ -119,13 +140,22 @@ for i =1:length(prof_b)
        
         hsvImage = rgb2hsv(rgbd);
         hImage = hsvImage(:,:,1);
-        PILA=hImage(:);
-         PILA(  all(~PILA,2), :  ) = [];
-         mean(PILA);
-         ramiro(k).hue_score = mean(PILA);
+        hue_image=hImage(:);
+         hue_image(  all(~hue_image,2), :  ) = [];
+         mean(hue_image);
+         ramiro(k).hue_score = mean(hue_image);
      
         
-          moldura((minimum(1)-3:maximum(1)+30),(minimum(2)-3):(maximum(2)+3))=1;
+         
+         moldx_min = (minimum(1)-3>0).*(minimum(1)-3);
+        moldx_max = (maximum(1)+30<480).*(maximum(1)+30) +(~(maximum(1)+30<480)).*480;
+        moldy_min = (minimum(2)-3<640).*(minimum(2)-3);
+        moldy_max = (maximum(2)+3<640).*(maximum(2)+3) +(~(maximum(2)+3<640)).*640;
+        
+        moldura(moldx_min:moldx_max , moldy_min:moldy_max) = 1;
+         
+         
+         % moldura((minimum(1)-3:maximum(1)+30),(minimum(2)-3):(maximum(2)+3))=1;
         
         deptharray_obj = deptharray1.*moldura;
         xyz1=get_xyzasus(deptharray_obj(:)*1000,[480 640],(1:640*480)',Depth_cam.K,1,0);
@@ -144,13 +174,23 @@ for i =1:length(prof_b)
     p = 1;
     encontrado = [];
    for k = 1 :size(frames_obj2,3)
+       if(isempty(frames_obj2))
+           break;
+       end
        [row,col]=find(frames_obj2(:,:,k)==1);
         
      	maximum = max([row';col']');
         minimum = min([row';col']');
         moldura = zeros(480,640);
         
-        moldura((minimum(1)-3:maximum(1)+30),(minimum(2)-3):(maximum(2)+3))=1;
+        moldx_min = (minimum(1)-3>0).*(minimum(1)-3);
+        moldx_max = (maximum(1)+30<480).*(maximum(1)+30) +(~(maximum(1)+30<480)).*480;
+        moldy_min = (minimum(2)-3<640).*(minimum(2)-3);
+        moldy_max = (maximum(2)+3<640).*(maximum(2)+3) +(~(maximum(2)+3<640)).*640;
+        
+        
+       % moldura((minimum(1)-3:maximum(1)+30),(minimum(2)-3):(maximum(2)+3))=1;
+       moldura(moldx_min:moldx_max , moldy_min:moldy_max) = 1;
         
         
         deptharray_obj = deptharray2.*moldura;
@@ -181,23 +221,28 @@ for i =1:length(prof_b)
         
         hsvImage = rgb2hsv(rgbd);
         hImage = hsvImage(:,:,1);
-        PILA=hImage(:);
-         PILA(  all(~PILA,2), :  ) = [];
-         mean(PILA);
-         gois(k).hue_score = mean(PILA);
+        hue_image=hImage(:);
+         hue_image(  all(~hue_image,2), :  ) = [];
+         mean(hue_image);
+         gois(k).hue_score = mean(hue_image);
      
    
+         
+        
         high_score=0;
         calc_score = 0;
         %compara os do obj1 com os do 2 (loopl dentro do loop)
        for j = 1:size(frames_obj1,3)
+            if(isempty(frames_obj1))
+                  break;
+             end
            if(find(encontrado == j))
                continue;
            end
           [matches,scores] = vl_ubcmatch(gois(k).d,ramiro(j).d);
           
-          calc_score = length(matches)
-          calc_score = calc_score + 4*log(abs((1/(gois(k).hue_score - ramiro(j).hue_score))))
+          calc_score = length(matches);
+          calc_score = calc_score + 10*log(abs((1/(gois(k).hue_score - ramiro(j).hue_score))));
           
           
           
@@ -206,21 +251,24 @@ for i =1:length(prof_b)
                 %i
                 found = j;
                 encontrado(p) = found;
+              
           end
        end
            
             if(high_score < 8 )
                 %obj está sozinho hehe
-                objects(length(objects)+1).descriptor = d;%aqui vai ser inserido o primeiro objecto log nas linhas seguintes nõa vai ser preciso por o factor +1 nas linhas seguintes
-                objects(length(objects)).X = [];
-                objects(length(objects)).Y = [];
-                objects(length(objects)).Z = [];
-            
-                objects(length(objects)).frames_tracked = i;
+%                 objects(length(objects)+1).descriptor = d;%aqui vai ser inserido o primeiro objecto log nas linhas seguintes nõa vai ser preciso por o factor +1 nas linhas seguintes
+%                 objects(length(objects)).X = [];
+%                 objects(length(objects)).Y = [];
+%                 objects(length(objects)).Z = [];
+%             
+%                 objects(length(objects)).frames_tracked = i;
+% i belive this does not belong here
             else
                 %está nas duas imagens
                 %EMPARELHATE
                 par(k, found) = 1;
+                  p = p+1;
                
             end
             
@@ -234,9 +282,14 @@ for i =1:length(prof_b)
    p = 0;
         close all  
    for n=1:size(frames_obj2,3)
+        if(isempty(frames_obj2))
+           break;
+       end
        
     for m=1:size(frames_obj1,3)
-        
+         if(isempty(frames_obj1))
+           break;
+         end
         if(par(n,m)==1)
               p = p +1 ;
             miragaia(p).d = [ramiro(m).d , gois(n).d];  
@@ -280,10 +333,12 @@ for i =1:length(prof_b)
    
     end
     
+    % está a mais acho eu
     if(par(n,m)==1)
         continue;
     end
     %emparelha
+    
              disp('PIL')
            deptharray_obj2 = deptharray2.*frames_obj2(:,:,n);
             p = p +1 ;
@@ -313,23 +368,29 @@ for i =1:length(prof_b)
         miragaia(p).X = [minions1(1),minions1(1),minions1(1),minions1(1), exrtremes1(1) ,exrtremes1(1) ,exrtremes1(1) ,exrtremes1(1)];
         
        miragaia(p).Y = [minions1(2),minions1(2), exrtremes1(2) ,exrtremes1(2) ,minions1(2),minions1(2),exrtremes1(2) ,exrtremes1(2)];
-        
+                
        miragaia(p).Z = [minions1(3) ,exrtremes1(3) ,minions1(3) ,exrtremes1(3) ,minions1(3) ,exrtremes1(3) ,minions1(3) ,exrtremes1(3)];
-        
+     
     
     
    end
    
     %vê se matriz par tem colunas a zero
+    
+    if(~isempty(frames_obj1))
+    for n=1:size(frames_obj1,3)
+        if(length(B) == 1)
+            B = par;
+        end
     if B(n) == 0
         p = p +1 ;
         disp('NOT');
         
             %não é preciso concatenar
-              miragaia(p).d = ramiro(m).d ;  
-              miragaia(p).hue_score = ramiro(m).hue_score;
+              miragaia(p).d = ramiro(n).d ;  
+              miragaia(p).hue_score = ramiro(n).hue_score;
             
-        deptharray_obj1 = deptharray1.*frames_obj1(:,:,m);
+        deptharray_obj1 = deptharray1.*frames_obj1(:,:,n);
   
            
         xyz1=get_xyzasus(deptharray_obj1(:)*1000,[480 640],(1:640*480)',Depth_cam.K,1,0);
@@ -354,28 +415,44 @@ for i =1:length(prof_b)
        miragaia(p).Y = [minions1(2),minions1(2), exrtremes1(2) ,exrtremes1(2) ,minions1(2),minions1(2),exrtremes1(2) ,exrtremes1(2)];
         
        miragaia(p).Z = [minions1(3) ,exrtremes1(3) ,minions1(3) ,exrtremes1(3) ,minions1(3) ,exrtremes1(3) ,minions1(3) ,exrtremes1(3)];        
+    
     end
-     
-        
+    
+    end
+       
+    end
 
     
     
 %codigo relevante tracking
-if ~isempty(  frames_obj1_prev )
-    
+%if ((~isempty(  frames_obj1_prev )) || (~isempty(  frames_obj2_prev ))) 
+if(~isempty(objects)) 
+
+encontrado = [];
+    p =1;
     for m=1:length(miragaia)
         
         num_matches = 0;
+        
         for n=1:length(miragaia_prev)
-            
-            [matches,scores] = vl_ubcmatch(miragaia_prev(n).d,miragaia(m).d);
-            
+          %  calc_score = 0;
           
-            calc_score = calc_score + 4*log(abs((1/(miragaia(m).hue_score - miragaia_prev(n).hue_score))))
+             if(find(encontrado == n))
+                 continue;
+             end
+          
+            [matches,scores] = vl_ubcmatch(miragaia_prev(n).d,miragaia(m).d);
+           % no caso dos miragaias acho que vai ser mais importante se nõa
+           % separarmos entre as imagesn
+             calc_score = length(matches);
+          
+            calc_score = calc_score + 10*log(abs((1/(miragaia(m).hue_score - miragaia_prev(n).hue_score))));
             
             if num_matches < calc_score
                 num_matches = calc_score;
              found = n; %found e o antigo
+             encontrado(p) = found;
+             
              end  
         end
             if num_matches > 30
@@ -385,6 +462,8 @@ if ~isempty(  frames_obj1_prev )
                 objects(miragaia_prev(found).obj_prev).Z=[objects(miragaia_prev(found).obj_prev).Z ; miragaia(m).Z];
                 objects(miragaia_prev(found).obj_prev).frames_tracked = [objects(miragaia_prev(found).obj_prev).frames_tracked,i];
                 miragaia(m).obj_prev = miragaia_prev(found).obj_prev;
+                p = p+1;
+                
             else 
                 objects(length(objects)+1).frames_tracked = i;
                 %ja adicionamos ja fica crto
@@ -416,7 +495,6 @@ end
     
 
     miragaia_prev = miragaia;
-    par_prev = par;
     FG_pts_prev = FG_pts;
 
     depthArrayFG1_prev = depthArrayFG1;
@@ -434,7 +512,7 @@ end
     
         
         for i=1:11
-            figure
+         %   figure
             hold on
              for m = 1:length(objects)
                  frame = find(objects(m).frames_tracked==i);
@@ -482,9 +560,9 @@ xyz2in1=xyz2*tr.T+ones(length(xyz2),1)*tr.c(1,:);
 p2=pointCloud(xyz2in1,'Color',cl2);
 
 
-pila=pcmerge(p1,p2,0.001);
+mergedpc=pcmerge(p1,p2,0.001);
 %         figure
-        pcshow(pila);
+        pcshow(mergedpc);
 %         hold on
       
         

@@ -1,8 +1,10 @@
-function [ FG_pts,depthArrayFG1,depthArrayFG2,frame_obj1, frame_obj2] = getForeGroundpts( backGround_a,backGround_b,deptharray1,deptharray2,im1,im2 )
+function [ FG_pts,depthArrayFG1,depthArrayFG2,frame_obj1, frame_obj2] = getForeGroundpts( backGround_a,backGround_b,deptharray1,deptharray2,im1,im2, depth_cam,tr)
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
 
-load ../maizena/rly_close.mat;
+%load ../maizena/rly_close.mat;
+load ../matlab.mat;
+
 
     % mostar as duas %imagens de forma ao utilizador se aperceber qual o frame a ser analizado
 %      %figure
@@ -17,8 +19,8 @@ frame_obj1= [];
 frame_obj2 = [];
     
     %background subtraction (retor uns ou zeros)
-    fg1 = (double(deptharray1) - backGround_a) < - 0.25;
-    fg2 = (double(deptharray2) - backGround_b)< - 0.25; %sem abs
+    fg1 = abs(double(deptharray1) - backGround_a) > 0.2;
+    fg2 = abs(double(deptharray2) - backGround_b)> 0.2; %sem abs
     
     
     %elimina os zeros do foreground (fg fica com fator de escala marado but its ok)
@@ -60,8 +62,8 @@ frame_obj2 = [];
     labelCounts2=tabulate(bw2(:));
    
     %devolve o indice do label e consequentemente o label
-    goodLabels1 =find(labelCounts1(:,2)>930)-1;
-    goodLabels2 =find(labelCounts2(:,2)>931)-1;
+    goodLabels1 =find(labelCounts1(:,2)>450)-1;
+    goodLabels2 =find(labelCounts2(:,2)>450)-1;
     
     %removes bg from goodlabels encontra o max das counts e remove o dos
     %good labels
