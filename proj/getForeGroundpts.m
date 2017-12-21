@@ -60,8 +60,8 @@ frame_obj2 = [];
     labelCounts2=tabulate(bw2(:));
    
     %devolve o indice do label e consequentemente o label
-    goodLabels1 =find(labelCounts1(:,2)>930)-1;
-    goodLabels2 =find(labelCounts2(:,2)>931)-1;
+    goodLabels1 =find(labelCounts1(:,2)>450)-1;
+    goodLabels2 =find(labelCounts2(:,2)>450)-1;
     
     %removes bg from goodlabels encontra o max das counts e remove o dos
     %good labels

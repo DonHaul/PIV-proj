@@ -1,11 +1,16 @@
+function [tr] = procrustesverdadeiro(file_name)
+
+
 %% threshold  pode estar mal<---------- <---------
 % READ IMAGES and GENERATE POINT CLOUDS
+
+
 load ../imagens/matlab.mat;
-im1=imread('../room/rgb_image1_3.png');
-im2=imread('../room/rgb_image2_3.png');
-load('../room/depth1_3.mat')
+im1=imread(['../' file_name '/rgb_image1_1.png']);
+im2=imread(['../' file_name '/rgb_image2_1.png']);
+load(['../' file_name '/depth1_1.mat'])
 dep1=depth_array;
-load('../room/depth2_3.mat')
+load(['../' file_name '/depth2_1.mat'])
 dep2=depth_array;
 %dep2(find(dep2(:)>4000))=0;
 xyz1=get_xyzasus(dep1(:),[480 640],(1:640*480)', Depth_cam.K,1,0);
@@ -144,7 +149,7 @@ figure(4); showPointCloud(pc2);
 
            P1=P1(inds,:);
            P2=P2(inds,:);
-         [d,xx,tr]=procrustes(P1,P2,'scaling',false,'reflection',false);
+         [~,~,tr]=procrustes(P1,P2,'scaling',false,'reflection',false);
          
          
         

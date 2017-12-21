@@ -2,13 +2,13 @@
 %%
 clear
 close all
-
-% Directório onde se encontram as imagens de profundidade e de rgb para
+file_name = 'maizena';
+% Directório onde se encontram as imagens x\ profundidade e de rgb para
 % análise
-myDir_prof = '../maizena/';
+myDir_prof = ['../' file_name '/'];
 
 %guardar todos os vectores de profundidade da camera 1
-prof_a=dir('../maizena/depth1*.mat');
+prof_a=dir(['../' file_name '/depth1*.mat']);
 
 %inicializar a matriz que vai conter momentaneamente os valores das imagens
 %de profundidade
@@ -24,7 +24,7 @@ end
 backGround_a = median(imgmed,3);% faz a mediana da imagem ao longo do tempo(3ª dimensão), logo irá criar uma imagem que corresponde aos valores mais comuns de cada pixel para a imagem de profundidade da câmera 1
 
 %guardar todos os vectores de profundidade da camera 2
-prof_b=dir('../maizena/depth2*.mat');
+prof_b=dir(['../' file_name '/depth2*.mat']);
 for i=1:length(prof_b)
     load( [myDir_prof prof_b(i).name])
     imgmed(:,:,i) = double(depth_array)/1000;% agrupar as imagens de profundidade ca camera 2
@@ -44,13 +44,14 @@ backGround_b = median(imgmed,3);% faz a mediana da imagem ao longo do tempo(3ª d
 
 % load the rgb images to analise
 % directório e inicio do nome em que se irão encontras as imagens a ser analisadas
-myDir = '../maizena/rgb_image';
+myDir = ['../' file_name '/rgb_image'];
 ext_img = '.png.';%extensão dos ficheiros da imagem rgb a ser analisada
 
 %temos que alterar isto apra que as matrizes R e T corretas, podemos fazer
 %a função procrustes do professor de forma a termos/ ou feita com o VL feat
 % retornar em tr.T a matriz de rotação e tr.c a de translação
 load ../maizena/rly_close.mat;
+tr = procrustesverdadeiro(file_name);
 % introduzir aqui o codigo do procrustes -> ou refazer os alinhamento pela
 % função procrustesfalso.m
 
@@ -61,6 +62,7 @@ objects_size = 0;
 objects = {};
 num_obj_prev = {};
   frames_obj1_prev =[];
+  frames_obj2_prev =[];
 
 for i =1:length(prof_b)
    % i=6;
@@ -85,11 +87,26 @@ for i =1:length(prof_b)
     
     [FG_pts,depthArrayFG1,depthArrayFG2,frames_obj1, frames_obj2] = getForeGroundpts(backGround_a,backGround_b,deptharray1,deptharray2,im1,im2);
   
+    ramiro = {};
+   gois = {};
+   miragaia = {};
     
     
-     if(isempty (frames_obj1))
-       continue;
-     end
+    % save computation
+    if(isempty(frames_obj2) && isempty(frames_obj1))
+           miragaia_prev = miragaia;
+    FG_pts_prev = FG_pts;
+
+    depthArrayFG1_prev = depthArrayFG1;
+    depthArrayFG2_prev = depthArrayFG2;
+    frames_obj1_prev = frames_obj1;
+    frames_obj2_prev = frames_obj2;
+        continue;
+    end
+%     
+%      if(isempty (frames_obj1))
+%        continue;
+%      end
 %     Z = linkage(FG_pts.Location);
 %     T = cluster(Z, 'cutoff', 0.05, 'criterion', 'distance') %5cm e nao 50
 %     dendrogram(Z)
@@ -98,13 +115,11 @@ for i =1:length(prof_b)
 
 
   % d_1 = zeros(1,size(frames_obj1,3));
-   %f_1 = zeros(1,size(frames_obj1,3));
-
-   ramiro = {};
-   gois = {};
-   miragaia = {};
+   %f_1 = zeros(1,size(frames_obj1,3)); 
    for k = 1:size(frames_obj1,3)
-        
+         if(isempty(frames_obj1))
+           break;
+       end
         [row,col]=find(frames_obj1(:,:,k)==1);
         
      	maximum = max([row';col']');
@@ -150,6 +165,9 @@ for i =1:length(prof_b)
     p = 1;
     encontrado = [];
    for k = 1 :size(frames_obj2,3)
+       if(isempty(frames_obj2))
+           break;
+       end
        [row,col]=find(frames_obj2(:,:,k)==1);
         
      	maximum = max([row';col']');
@@ -199,6 +217,9 @@ for i =1:length(prof_b)
         calc_score = 0;
         %compara os do obj1 com os do 2 (loopl dentro do loop)
        for j = 1:size(frames_obj1,3)
+            if(isempty(frames_obj1))
+                  break;
+             end
            if(find(encontrado == j))
                continue;
            end
@@ -220,12 +241,13 @@ for i =1:length(prof_b)
            
             if(high_score < 8 )
                 %obj está sozinho hehe
-                objects(length(objects)+1).descriptor = d;%aqui vai ser inserido o primeiro objecto log nas linhas seguintes nõa vai ser preciso por o factor +1 nas linhas seguintes
-                objects(length(objects)).X = [];
-                objects(length(objects)).Y = [];
-                objects(length(objects)).Z = [];
-            
-                objects(length(objects)).frames_tracked = i;
+%                 objects(length(objects)+1).descriptor = d;%aqui vai ser inserido o primeiro objecto log nas linhas seguintes nõa vai ser preciso por o factor +1 nas linhas seguintes
+%                 objects(length(objects)).X = [];
+%                 objects(length(objects)).Y = [];
+%                 objects(length(objects)).Z = [];
+%             
+%                 objects(length(objects)).frames_tracked = i;
+% i belive this does not belong here
             else
                 %está nas duas imagens
                 %EMPARELHATE
@@ -244,9 +266,14 @@ for i =1:length(prof_b)
    p = 0;
         close all  
    for n=1:size(frames_obj2,3)
+        if(isempty(frames_obj2))
+           break;
+       end
        
     for m=1:size(frames_obj1,3)
-        
+         if(isempty(frames_obj1))
+           break;
+         end
         if(par(n,m)==1)
               p = p +1 ;
             miragaia(p).d = [ramiro(m).d , gois(n).d];  
@@ -295,6 +322,7 @@ for i =1:length(prof_b)
         continue;
     end
     %emparelha
+    
              disp('PIL')
            deptharray_obj2 = deptharray2.*frames_obj2(:,:,n);
             p = p +1 ;
@@ -325,11 +353,16 @@ for i =1:length(prof_b)
         
        miragaia(p).Y = [minions1(2),minions1(2), exrtremes1(2) ,exrtremes1(2) ,minions1(2),minions1(2),exrtremes1(2) ,exrtremes1(2)];
                 
+       miragaia(p).Z = [minions1(3) ,exrtremes1(3) ,minions1(3) ,exrtremes1(3) ,minions1(3) ,exrtremes1(3) ,minions1(3) ,exrtremes1(3)];
+     
     
     
    end
    
     %vê se matriz par tem colunas a zero
+    
+    if(~isempty(frames_obj1))
+    
     if B(n) == 0
         p = p +1 ;
         disp('NOT');
@@ -363,15 +396,19 @@ for i =1:length(prof_b)
        miragaia(p).Y = [minions1(2),minions1(2), exrtremes1(2) ,exrtremes1(2) ,minions1(2),minions1(2),exrtremes1(2) ,exrtremes1(2)];
         
        miragaia(p).Z = [minions1(3) ,exrtremes1(3) ,minions1(3) ,exrtremes1(3) ,minions1(3) ,exrtremes1(3) ,minions1(3) ,exrtremes1(3)];        
+    
     end
-     
+    
+    end
         
 
     
     
 %codigo relevante tracking
-if ~isempty(  frames_obj1_prev )
-    encontrado = [];
+%if ((~isempty(  frames_obj1_prev )) || (~isempty(  frames_obj2_prev ))) 
+if(~isempty(objects)) 
+
+encontrado = [];
     p =1;
     for m=1:length(miragaia)
         
@@ -438,7 +475,6 @@ end
     
 
     miragaia_prev = miragaia;
-    par_prev = par;
     FG_pts_prev = FG_pts;
 
     depthArrayFG1_prev = depthArrayFG1;
