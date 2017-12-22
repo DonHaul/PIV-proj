@@ -2,7 +2,7 @@
 %%
 clear
 close all
-file_name = 'livro';
+file_name = 'room';
 % Directório onde se encontram as imagens x\ profundidade e de rgb para
 % análise
 myDir_prof = ['../' file_name '/'];

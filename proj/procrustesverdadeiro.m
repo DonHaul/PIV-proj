@@ -78,7 +78,7 @@ dep2=depth_array;
          for i=1:4000            
              
              %escolhe 4 pontos
-             perm = randperm(size(matches,2),6) ;
+             perm = randperm(size(matches,2),4) ;
 
              %vai buscar os 4 pontos em cada camara
              P1 = xyz_pts1(perm,:);
@@ -97,7 +97,7 @@ dep2=depth_array;
              norms = sqrt(sum(temp'.^2,1));
 
              %verifica se estam proximos
-             inliers_id = find( norms < 1.0); %PODE NAO ESTAR BEM, ATENÇÃO RAMIRAGOIS
+             inliers_id = find( norms < 0.10); %PODE NAO ESTAR BEM, ATENÇÃO RAMIRAGOIS
 
              %define esta transformacao como sendo a melhor caso tenha mais
              %inliers
@@ -145,8 +145,8 @@ dep2=depth_array;
          
          %vai buscar todos os bons inliers a ambos os vetores e calcula o
          %procrustes
-         P1=P1(inds,:);
-         P2=P2(inds,:);
+         %P1=P1(inds,:);
+       %  P2=P2(inds,:);
          [~,~,tr]=procrustes(P1,P2,'scaling',false,'reflection',false);
          
          
