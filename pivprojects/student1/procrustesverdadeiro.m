@@ -1,4 +1,4 @@
-function [tr] = procrustesverdadeiro(file_name,Depth_cam,R_d_to_rgb,T_d_to_rgb,RGB_cam)
+function [tr] = procrustesverdadeiro(cam1,cam2,Depth_cam,R_d_to_rgb,T_d_to_rgb,RGB_cam)
 %% threshold  pode estar mal<---------- <---------
 % READ IMAGES and GENERATE POINT CLOUDS
 
@@ -11,11 +11,11 @@ function [tr] = procrustesverdadeiro(file_name,Depth_cam,R_d_to_rgb,T_d_to_rgb,R
 
 
 %faz load das imagens de profundidade e depth
-im1=imread(['../' file_name '/rgb_image1_1.png']);
-im2=imread(['../' file_name '/rgb_image2_1.png']);
-load(['../' file_name '/depth1_1.mat'])
+im1=imread(cam1.rgb);
+im2=imread(cam2.rgb);
+load(cam1.depth)
 dep1=depth_array;
-load(['../' file_name '/depth2_1.mat'])
+load(cam2.depth)
 dep2=depth_array;
 
 %converte em coodenadas 3D ISTO E SO DEBUG E PARA REMOVER TUDO

@@ -1,4 +1,4 @@
-function [objects] = track3D_part1( imgseq1, imgseq2,  cam_params, cam1toW, cam2toW)
+function [objects,cam1toW, cam2toW] = track3D_part( imgseq1, imgseq2,  cam_params)
 %track3D_part1 Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -13,7 +13,7 @@ function [objects] = track3D_part1( imgseq1, imgseq2,  cam_params, cam1toW, cam2
 
 %inicializar a matriz que vai conter momentaneamente os valores das imagens
 %de profundidade
-imgmed = zeros(480,640,length(prof_a));
+imgmed = zeros(480,640,length(imgseq1));
 % agrupar todas as imagens de profundidade para que seja possivel encontrar
 % o background das imagens de cada 1 das cameras:
 for i=1:length(imgseq1)
@@ -60,7 +60,7 @@ R_d_to_rgb = cam_params.R;
 T_d_to_rgb = cam_params.T;
 RGB_cam.K  = cam_params.Krgb;
 
-%tr = procrustesverdadeiro(imgseq1(1),imgseq1(1),Depth_cam,R_d_to_rgb,T_d_to_rgb,RGB_cam);
+tr = procrustesverdadeiro(imgseq1(1),imgseq1(1),Depth_cam,R_d_to_rgb,T_d_to_rgb,RGB_cam);
 
 
 % introduzir aqui o codigo do procrustes -> ou refazer os alinhamento pela
@@ -75,28 +75,32 @@ num_obj_prev = {};
 frames_obj1_prev =[];
 frames_obj2_prev =[];
 
-for i =1:length(prof_b)
+for i =1:length(imgseq2)
    % i=6;
     %load da imagem de profundidade da camera 1, a divisão por 1000 vem do
     %facto de queremos em metros
-    load([myDir_prof 'depth1_' int2str(i) '.mat'])
+   % load([myDir_prof 'depth1_' int2str(i) '.mat'])
+   load( imgseq1(i).depth)
     deptharray1 = double(depth_array)/1000;
     
     % profundidade camera 2
-    load([myDir_prof 'depth2_' int2str(i) '.mat'])
+    %load([myDir_prof 'depth2_' int2str(i) '.mat'])
+    load( imgseq2(i).depth)
     deptharray2 = double(depth_array)/1000;
     
     %read rgb image 1
-    im1 = imread([myDir '1_' int2str(i) ext_img]);
-    %read rgb image 1
+  %  im1 = imread([myDir '1_' int2str(i) ext_img]);
+    %read rgb image 2
     
-    im2 = imread([myDir '2_' int2str(i) ext_img]);
+   % im2 = imread([myDir '2_' int2str(i) ext_img]);
+   im2 = imread(imgseq2(i).rgb);
+   im1 = imread(imgseq1(i).rgb);
     
     if(i ==18)
         1+1
     end
     
-    [depthArrayFG1,depthArrayFG2,frames_obj1, frames_obj2] = getForeGroundpts(backGround_a,backGround_b,deptharray1,deptharray2,im1,im2,Depth_cam,tr);
+    [depthArrayFG1,depthArrayFG2,frames_obj1, frames_obj2] = getForeGroundpts(backGround_a,backGround_b,deptharray1,deptharray2);
   
     ramiro = {};
    gois = {};
@@ -106,12 +110,12 @@ for i =1:length(prof_b)
     % save computation
     if(isempty(frames_obj2) && isempty(frames_obj1))
            miragaia_prev = miragaia;
-    FG_pts_prev = FG_pts;
+    %FG_pts_prev = FG_pts;
 
-    depthArrayFG1_prev = depthArrayFG1;
-    depthArrayFG2_prev = depthArrayFG2;
-    frames_obj1_prev = frames_obj1;
-    frames_obj2_prev = frames_obj2;
+%     depthArrayFG1_prev = depthArrayFG1;
+%     depthArrayFG2_prev = depthArrayFG2;
+%     frames_obj1_prev = frames_obj1;
+%     frames_obj2_prev = frames_obj2;
         continue;
     end
 %     
@@ -318,8 +322,8 @@ for i =1:length(prof_b)
         xyz2(  all(~xyz2,2), :  ) = [];
 
         %faz point clouds dos foregrounds e faz merge destes
-        xyz1inW = xyz1*cam1toW.R + ones(length(xyz1),1)*cam1toW.T;       
-        xyz2inW = xyz2*cam2toW.R + ones(length(xyz2),1)*cam2toW.T;
+        xyz1inW = xyz1 ;       
+        xyz2inW = xyz2*tr.T + ones(length(xyz2),1)*tr.c(1,:);
           
         pcFG1=pointCloud(xyz1inW);
         pcFG2=pointCloud(xyz2inW);
@@ -365,7 +369,8 @@ for i =1:length(prof_b)
         xyz2(  all(~xyz2,2), :  ) = [];
 
         %faz point clouds dos foregrounds e faz merge destes       
-        xyz2inW = xyz2*cam2toW.R + ones(length(xyz2),1)*cam2toW.T;
+           
+        xyz2inW = xyz2*tr.T + ones(length(xyz2),1)*tr.c(1,:);
         
  
         pcFG2=pointCloud(xyz2inW);
@@ -412,7 +417,8 @@ for i =1:length(prof_b)
         %elimina zeros dos pontos 3d
         xyz1(  all(~xyz1,2), :  ) = [];
 
-        xyz1inW = xyz1*cam1toW.R + ones(length(xyz1),1)*cam1toW.T;       
+       
+        xyz1inW = xyz1 ;              
         
         
         %faz point clouds dos foregrounds e faz merge destes
@@ -604,6 +610,13 @@ end
 % 
 % 
 % 
+
+cam1toW.R = eye(3);
+cam1toW.T = zeros(1,3);
+
+cam2toW.R = tr.T;
+cam2toW.T = tr.c(1,:);
+
 
 
 end

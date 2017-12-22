@@ -19,7 +19,7 @@ base.T = zeros(1,3);
 camera2.R = [0.8048 ,-0.1051,    0.5842;   0.0189,    0.9882 ,   0.1517;    -0.5932  , -0.1110  ,  0.7973 ];
 camera2.T = [0.7477 ,-0.1238, 0.1679];
 
-corre='[objects] = track3D_part1( im1, im2,cam_params, base,camera2 );';
+corre='[objects,cam1toW,cam2toW] = track3D_part( im1, im2,cam_params);';
 
 
 
