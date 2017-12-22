@@ -60,7 +60,7 @@ R_d_to_rgb = cam_params.R;
 T_d_to_rgb = cam_params.T;
 RGB_cam.K  = cam_params.Krgb;
 
-tr = procrustesverdadeiro(imgseq1(1),imgseq1(1),Depth_cam,R_d_to_rgb,T_d_to_rgb,RGB_cam);
+tr = procrustesverdadeiro(imgseq1(1),imgseq2(1),Depth_cam,R_d_to_rgb,T_d_to_rgb,RGB_cam);
 
 
 % introduzir aqui o codigo do procrustes -> ou refazer os alinhamento pela
@@ -614,8 +614,8 @@ end
 cam1toW.R = eye(3);
 cam1toW.T = zeros(1,3);
 
-cam2toW.R = tr.T;
-cam2toW.T = tr.c(1,:);
+cam2toW.R = tr.T
+cam2toW.T = tr.c(1,:)
 
 
 
