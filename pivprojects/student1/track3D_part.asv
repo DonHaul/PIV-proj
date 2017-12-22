@@ -515,13 +515,10 @@ end
     
 end
 
-%definir os variáveis de saída 
-% como foi escolhido a camara 1 como origim a matriz de rotação vai ser a
-% identidade e a translação será nula
+%definir 
 cam1toW.R = eye(3);
 cam1toW.T = zeros(1,3);
 
-% as matrizes de transformação serão as cálculadas pelo procrustes
 cam2toW.R = tr.T;
 cam2toW.T = tr.c(1,:);
 

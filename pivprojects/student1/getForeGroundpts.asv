@@ -1,5 +1,5 @@
 function [depthArrayFG1,depthArrayFG2,frame_obj1, frame_obj2] = getForeGroundpts( backGround_a,backGround_b,deptharray1,deptharray2)
-% encontra conjuntos de pontos correspondentes a objectos pertencentes ao foreground em cada uma das câmeras
+%UNTITLED3 encontra conjuntos de pontos correspondentes a objectos pertencentes ao foreground em cada uma das câmeras
 % [depthArrayFG1,depthArrayFG2,frame_obj1, frame_obj2] = getForeGroundpts( backGround_a,backGround_b,deptharray1,deptharray2)
 % output
 %   depthArrayFGi conjunto de imagens em que cada elemeto é composto por  pela imagem de profundidade do objecto correspondente
@@ -9,8 +9,8 @@ function [depthArrayFG1,depthArrayFG2,frame_obj1, frame_obj2] = getForeGroundpts
 % inputs
 %   backGround_i imagem de background de profundidade da prespectiva i
 %           i = a,b
-%   deptharrayi imagem de profundidade a ser analisada da prespectiva i
-%           i = 1,2
+%   deptharrayi imagem de background de profundidade da prespectiva i
+%           i = a,b
 
 depthArrayFG1= [];
 depthArrayFG2= [];
@@ -46,7 +46,7 @@ frame_obj2 = [];
     bw1 = bwlabel(fg1,8);
     bw2 = bwlabel(fg2,8);
 
-    %ordena os conjuntos pelo seu tamanho
+    %encontra labels maiores que 500 pixeis
     labelCounts1=tabulate(bw1(:));
     labelCounts2=tabulate(bw2(:));
    

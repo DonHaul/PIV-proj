@@ -25,4 +25,4 @@ corre='[objects,cam1toW,cam2toW] = track3D_part( im1, im2,cam_params);';
 
 h=tic;
 eval(corre);
-tt=toc(h);
+tt=toc(h)
