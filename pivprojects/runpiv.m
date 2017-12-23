@@ -31,7 +31,7 @@
 %d3=dir([trainseq '/*.jpg']);
 %% -- CRIAR LISTA IMAGENS
 %DATA DIRECTORY
-base_data_dir='C:\Users\jpc\Downloads\lab1\lab1\';
+base_data_dir='C:\Users\ASUS\Desktop\AQUI\PIV\PIV-proj\maizena\';
 d1=dir([base_data_dir 'depth1*']);
 d2=dir([base_data_dir 'depth2*']);
 r1=dir([base_data_dir 'rgb_image1_*']);

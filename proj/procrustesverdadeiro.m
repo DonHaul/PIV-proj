@@ -97,7 +97,7 @@ dep2=depth_array;
              norms = sqrt(sum(temp'.^2,1));
 
              %verifica se estam proximos
-             inliers_id = find( norms < 0.10); %PODE NAO ESTAR BEM, ATENÇÃO RAMIRAGOIS
+             inliers_id = find( norms < 0.3); %PODE NAO ESTAR BEM, ATENÇÃO RAMIRAGOIS
 
              %define esta transformacao como sendo a melhor caso tenha mais
              %inliers

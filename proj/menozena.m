@@ -2,7 +2,7 @@
 %%
 clear
 close all
-file_name = 'room';
+file_name = 'livro';
 % Directório onde se encontram as imagens x\ profundidade e de rgb para
 % análise
 myDir_prof = ['../' file_name '/'];
@@ -511,8 +511,9 @@ end
    
     
         
-        for i=1:11
+        %for i=1:11
          %   figure
+         i = 20
             hold on
              for m = 1:length(objects)
                  frame = find(objects(m).frames_tracked==i);
@@ -574,4 +575,4 @@ mergedpc=pcmerge(p1,p2,0.001);
 %     im1 =imread( imgseq1(objects(23).frames_tracked(k)).rgb)
 %     imshow(im1)
 % pause();
-end
+%end
