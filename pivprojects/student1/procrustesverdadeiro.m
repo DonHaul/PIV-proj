@@ -67,7 +67,7 @@ for i=1:100000
     
     %escolhe 4 pontos, numero mínimo de pontos para que possa ser
     %resolvido o procruestes
-    perm = randperm(size(matches,2),6) ;
+    perm = randperm(size(matches,2),4) ;
     
     %vai buscar os 4 pontos em cada camara
     P1 = xyz_pts1(perm,:);
@@ -87,7 +87,7 @@ for i=1:100000
     
     %verifica se estam proximos
     % guarda os pontos que a sua distancia entre a sua
-    % posição real e a sua projecção seja inferior a 10cm
+    % posição real e a sua projecção seja inferior a 40cm
     inliers_id = find( norms < 0.4);
     
     %define esta transformacao como sendo a melhor caso um maior
@@ -116,13 +116,13 @@ P2 = xyz_pts2(perm,:);
 
     
     %debug
-    pc1=pointCloud(xyz1,'Color',reshape(rgbd1,[480*640 3]));
-    pc2=pointCloud(xyz2*tr.T+ones(length(xyz2),1)*tr.c(1,:),'Color',reshape(rgbd2,[480*640 3]));
-    close all
-    figure
-    %showPointCloud(pc1)
-    pcshow(pcmerge(pc1,pc2,0.001));
-    drawnow;
+%     pc1=pointCloud(xyz1,'Color',reshape(rgbd1,[480*640 3]));
+%     pc2=pointCloud(xyz2*tr.T+ones(length(xyz2),1)*tr.c(1,:),'Color',reshape(rgbd2,[480*640 3]));
+%     close all
+%     figure
+%     %showPointCloud(pc1)
+%     pcshow(pcmerge(pc1,pc2,0.001));
+%     drawnow;
 
 
 

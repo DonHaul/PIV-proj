@@ -31,7 +31,8 @@
 %d3=dir([trainseq '/*.jpg']);
 %% -- CRIAR LISTA IMAGENS
 %DATA DIRECTORY
-base_data_dir='C:\Users\ASUS\Desktop\AQUI\PIV\PIV-proj\maizena\';
+base_data_dir='C:\Users\ASUS\Desktop\AQUI\PIV\PIV-proj\livro\';
+%base_data_dir='C:\Users\ASUS\Desktop\corredor\corredor1\';
 d1=dir([base_data_dir 'depth1*']);
 d2=dir([base_data_dir 'depth2*']);
 r1=dir([base_data_dir 'rgb_image1_*']);
@@ -114,7 +115,7 @@ for i=1:size(texto,2),
        R1=caminho{2,i}.R;
        T1=caminho{2,i}.T;
        R2=caminho{3,i}.R;
-       T3=caminho{3,i}.T;       
+       T2=caminho{3,i}.T;       
        for j=1:length(im1),           
            load(im1(j).depth);
            xyz1=get_xyzasus(depth_array(:),[480 640],(1:640*480)', cam_params.Kdepth,1,0);
@@ -136,7 +137,7 @@ for i=1:size(texto,2),
                line([xs(combs(1,:));xs(combs(2,:))],[ys(combs(1,:));ys(combs(2,:))],[zs(combs(1,:));zs(combs(2,:))],'LineWidth',2);
            end
            hold off;
-           pause;
+           pause(1);
        end
     end
 end
